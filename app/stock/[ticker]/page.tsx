@@ -6,13 +6,14 @@ async function getStockChartData(ticker: string, range: string = "1w") {
   const queryOptions = {
     period1: getPeriod1(range),
     period2: new Date().toISOString().split("T")[0],
-    interval: getInterval(range) as "1m" | "15m" | "30m" | "60m" | "1d",
+    interval: getInterval(range) as DEFAULT_INTERVALS,
   };
   const result = await yahooFinance.chart(ticker, queryOptions);
   return result;
 }
 
 export type ChartData = Awaited<ReturnType<typeof getStockChartData>>;
+export type DEFAULT_INTERVALS = "1m" | "15m" | "30m" | "60m" | "1d";
 
 export default async function Page({
   params,
