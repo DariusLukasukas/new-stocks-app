@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Dock from "@/components/dock/Dock";
 import { ThemeProvider } from "@/components/ui/theme-provider";
+import { ModeToggle } from "@/components/ui/theme-toggle";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,6 +36,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <ModeToggle />
           {children}
           <Dock />
         </ThemeProvider>
