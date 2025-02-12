@@ -5,7 +5,9 @@ import yahooFinance from "yahoo-finance2";
 async function getStockChartData(ticker: string, range: string = "1w") {
   const queryOptions = {
     period1: getPeriod1(range),
-    period2: new Date().toISOString().split("T")[0],
+    period2: new Date()
+      .toLocaleString("en-US", { timeZone: "America/New_York" })
+      .split("T")[0],
     interval: getInterval(range) as DEFAULT_INTERVALS,
   };
   const result = await yahooFinance.chart(ticker, queryOptions);

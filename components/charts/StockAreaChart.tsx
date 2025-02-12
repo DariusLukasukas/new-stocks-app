@@ -4,13 +4,14 @@ import { useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChartData } from "@/app/stock/[ticker]/page";
 import {
-  AreaChart,
   Area,
   XAxis,
   YAxis,
   Tooltip,
   TooltipProps,
   ResponsiveContainer,
+  ComposedChart,
+  Bar,
 } from "recharts";
 import { Button } from "@/components/ui/button";
 
@@ -136,7 +137,8 @@ export default function StockAreaChart({ data }: ChartProps) {
       .filter((quote) => quote.close !== null)
       .map((quote) => ({
         date: new Date(quote.date).getTime(),
-        close: Math.round(quote.close! * 100) / 100,
+        close: quote.close!,
+        volume: quote.volume || 0,
       }));
   }, [data.quotes]);
 
@@ -153,20 +155,11 @@ export default function StockAreaChart({ data }: ChartProps) {
       .map((item) => item.date);
   }, [rangeData]);
 
-  // Calculate Y-axis domain with 5% padding.
-  const [minClose, maxClose] = useMemo(() => {
-    const closes = rangeData.map((item) => item.close);
-    const min = Math.min(...closes);
-    const max = Math.max(...closes);
-    const padding = (max - min) * 0.05;
-    return [min - padding, max + padding];
-  }, [rangeData]);
-
   return (
     <>
       <div style={{ width: "100%", height: 400 }}>
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
+          <ComposedChart
             data={rangeData}
             margin={{ top: 10, right: 5, left: 5, bottom: 0 }}
             className="font-mono"
@@ -183,26 +176,26 @@ export default function StockAreaChart({ data }: ChartProps) {
               </linearGradient>
               {/* Example pattern: 45° diagonal lines */}
               {/* <pattern
-                id="diagonalLines"
-                patternUnits="userSpaceOnUse"
-                width="4"
-                height="4"
-                patternTransform="rotate(45)"
-              >
-                <line
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="4"
-                  strokeWidth="2"
-                  className="stroke-primary/10"
-                />
-              </pattern> */}
+                  id="diagonalLines"
+                  patternUnits="userSpaceOnUse"
+                  width="4"
+                  height="4"
+                  patternTransform="rotate(45)"
+                >
+                  <line
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="4"
+                    strokeWidth="2"
+                    className="stroke-primary/10"
+                  />
+                </pattern> */}
               {/* Example pattern: dots (uncomment to use)
-              <pattern id="dotsPattern" patternUnits="userSpaceOnUse" width="4" height="4">
-                <circle cx="2" cy="2" r="1" fill="#8884d8" />
-              </pattern>
-              */}
+                <pattern id="dotsPattern" patternUnits="userSpaceOnUse" width="4" height="4">
+                  <circle cx="2" cy="2" r="1" fill="#8884d8" />
+                </pattern>
+                */}
             </defs>
             <XAxis
               dataKey="date"
@@ -213,12 +206,26 @@ export default function StockAreaChart({ data }: ChartProps) {
               className="text-sm font-medium"
             />
             <YAxis
+              yAxisId="price"
               tick={false}
               axisLine={false}
               width={0}
-              domain={[minClose, maxClose]}
+              domain={["dataMin", "dataMax"]}
+              padding={{ bottom: 60 }}
+            />
+            <YAxis
+              hide
+              type="number"
+              yAxisId="volume"
+              orientation="right"
+              domain={[0, (dataMax: number) => dataMax * 5]}
             />
             <Tooltip<number, string>
+              cursor={{
+                strokeWidth: 1,
+                strokeDasharray: "5 5",
+                className: "stroke-primary/50",
+              }}
               content={({ active, payload, label }) => (
                 <CustomTooltip
                   active={active}
@@ -229,10 +236,11 @@ export default function StockAreaChart({ data }: ChartProps) {
               )}
             />
             {/* Possible to choose the fill style for the area:
-                - Use the gradient: fill="url(#colorHigh)"
-                - Or use the pattern: fill="url(#diagonalLines)" or fill="url(#dotsPattern)"
-            */}
+                  - Use the gradient: fill="url(#colorHigh)"
+                  - Or use the pattern: fill="url(#diagonalLines)" or fill="url(#dotsPattern)"
+              */}
             <Area
+              yAxisId="price"
               type="monotone"
               dataKey="close"
               stroke="#8884d8"
@@ -241,7 +249,14 @@ export default function StockAreaChart({ data }: ChartProps) {
               // fill="url(#diagonalLines)"
               fill="url(#colorHigh)"
             />
-          </AreaChart>
+            <Bar
+              yAxisId="volume"
+              dataKey="volume"
+              fillOpacity={0.2}
+              fill="#413ea0"
+              isAnimationActive={false}
+            />
+          </ComposedChart>
         </ResponsiveContainer>
       </div>
       <div className="flex space-x-2">
