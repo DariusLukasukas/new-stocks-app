@@ -12,7 +12,7 @@ import {
   TooltipProps,
   ResponsiveContainer,
 } from "recharts";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 
 interface ChartProps {
   data: ChartData;
@@ -43,6 +43,7 @@ function formatXAxisTick(date: Date, range: string): string {
         month: "short",
         day: "numeric",
         year: "numeric",
+        timeZone: "America/New_York",
       })
       .replace(/,/g, "");
   }
@@ -61,6 +62,7 @@ function formatTooltipLabel(date: Date, range: string): string {
         day: "2-digit",
         month: "short",
         year: "numeric",
+        timeZone: "America/New_York",
       })
       .replace(/,/g, "");
     const hours = date.getHours();
@@ -72,6 +74,7 @@ function formatTooltipLabel(date: Date, range: string): string {
         day: "2-digit",
         month: "short",
         year: "numeric",
+        timeZone: "America/New_York",
       })
       .replace(/,/g, "");
   }
@@ -241,7 +244,7 @@ export default function StockAreaChart({ data }: ChartProps) {
           </AreaChart>
         </ResponsiveContainer>
       </div>
-      <div className="flex space-x-2 mt-4">
+      <div className="flex space-x-2">
         {RANGE_OPTIONS.map((option) => (
           <Button
             key={option.label}

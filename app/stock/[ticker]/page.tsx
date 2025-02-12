@@ -26,7 +26,6 @@ export default async function Page({
   const { range = "1w" } = await searchParams;
 
   const chartData = await getStockChartData(ticker, range as string);
-
   return (
     <div className="container mx-auto">
       <StockAreaChart data={chartData} />
