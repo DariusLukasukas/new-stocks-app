@@ -12,6 +12,8 @@ import {
   ResponsiveContainer,
   ComposedChart,
   Bar,
+  ReferenceDot,
+  ReferenceDotProps,
 } from "recharts";
 import { Button } from "@/components/ui/button";
 
@@ -28,23 +30,62 @@ const RANGE_OPTIONS = [
 ];
 
 /**
+ * Custom SVG shape for the pulsing dot.
+ */
+const PulsingDot = (props: ReferenceDotProps) => {
+  const { cx, cy } = props;
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r="5" fill="#8884d8" />
+      <circle
+        cx={cx}
+        cy={cy}
+        r="5"
+        fill="none"
+        stroke="#8884d8"
+        strokeWidth="2"
+      >
+        <animate
+          attributeName="r"
+          from="5"
+          to="10"
+          dur="1s"
+          repeatCount="indefinite"
+        />
+        <animate
+          attributeName="opacity"
+          from="1"
+          to="0"
+          dur="1s"
+          begin="0.5s"
+          repeatCount="indefinite"
+        />
+      </circle>
+    </g>
+  );
+};
+
+/**
  * Formats a Date for the X-Axis tick labels.
- * - For "1d": Returns only the hour (e.g. "10").
- * - For "1w" and "1m": Returns the day of month (e.g. "10").
- * - For "3m" and "1y": Returns abbreviated month, day and year (e.g. "Apr 13 2024").
+ * For a 1D chart, we display Eastern time (hour:minute).
  */
 function formatXAxisTick(date: Date, range: string): string {
   if (range === "1d") {
-    return date.getHours().toString();
+    return date.toLocaleTimeString("en-US", {
+      timeZone: "America/New_York",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: false,
+    });
   } else if (range === "1w" || range === "1m") {
     return date.getDate().toString();
   } else if (range === "3m" || range === "1y") {
     return date
       .toLocaleDateString("en-US", {
+        timeZone: "America/New_York",
         month: "short",
         day: "numeric",
         year: "numeric",
-        timeZone: "America/New_York",
       })
       .replace(/,/g, "");
   }
@@ -53,29 +94,26 @@ function formatXAxisTick(date: Date, range: string): string {
 
 /**
  * Formats a Date for the Tooltip label.
- * - For "1d": Returns the full date and time in the format "11 Feb 2025 at 20:25".
- * - For other ranges: Returns just the date in the format "11 Feb 2025".
  */
 function formatTooltipLabel(date: Date, range: string): string {
   if (range === "1d") {
-    const datePart = date
-      .toLocaleDateString("en-GB", {
+    return date
+      .toLocaleString("en-GB", {
+        timeZone: "America/New_York",
         day: "2-digit",
         month: "short",
         year: "numeric",
-        timeZone: "America/New_York",
+        hour: "numeric",
+        minute: "numeric",
       })
       .replace(/,/g, "");
-    const hours = date.getHours();
-    const minutes = ("0" + date.getMinutes()).slice(-2);
-    return `${datePart} at ${hours}:${minutes}`;
   } else {
     return date
       .toLocaleDateString("en-GB", {
+        timeZone: "America/New_York",
         day: "2-digit",
         month: "short",
         year: "numeric",
-        timeZone: "America/New_York",
       })
       .replace(/,/g, "");
   }
@@ -93,7 +131,6 @@ function formatPrice(price: number): string {
 
 /**
  * Custom Tooltip component that applies Tailwind classes for styling.
- * It displays the formatted date and the Price (formatted as dollars).
  */
 interface CustomTooltipProps extends TooltipProps<number, string> {
   range: string;
@@ -132,18 +169,46 @@ export default function StockAreaChart({ data }: ChartProps) {
     [searchParams]
   );
 
-  const rangeData = useMemo(() => {
-    return data.quotes
-      .filter((quote) => quote.close !== null)
-      .map((quote) => ({
-        date: new Date(quote.date).getTime(),
-        close: quote.close!,
-        volume: quote.volume || 0,
-      }));
-  }, [data.quotes]);
+  // --- ADJUSTING TIMESTAMPS ---
+  const rawData = data.quotes
+    .filter((quote) => quote.close !== null)
+    .map((quote) => ({
+      date: quote.date.getTime(),
+      close: quote.close!,
+      volume: quote.volume || 0,
+    }));
 
-  // Limit the number of ticks on the x-axis (approx. 5 evenly spaced ticks)
-  const xTicks = useMemo(() => {
+  // --- FILTER DATA FOR 1D ---
+  // For a 1D chart, only include today's quotes (Eastern Time).
+  const rangeData = useMemo(() => {
+    if (range === "1d") {
+      // Compute today's midnight in Eastern Time.
+      const todayET = new Date(
+        new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
+      );
+      todayET.setHours(0, 0, 0, 0);
+      // Compute market open time (9:30 AM Eastern Time)
+      const marketOpenET = new Date(
+        new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
+      );
+      marketOpenET.setHours(9, 30, 0, 0);
+      // Current Eastern time:
+      const nowET = new Date(
+        new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
+      );
+      // If market is open, show only data later than the later of (market open or 8 hours ago)
+      const eightHoursAgo = nowET.getTime() - 8 * 60 * 60 * 1000;
+      const lowerBound = Math.max(eightHoursAgo, marketOpenET.getTime());
+      return rawData.filter(
+        (item) => item.date >= Math.max(todayET.getTime(), lowerBound)
+      );
+    }
+    return rawData;
+  }, [rawData, range]);
+
+  // --- X-AXIS TICKS ---
+  // For non-1D ranges, compute ticks normally.
+  const defaultXTicks = useMemo(() => {
     if (rangeData.length === 0) return [];
     const desiredTickCount = 5;
     const tickInterval = Math.max(
@@ -154,6 +219,63 @@ export default function StockAreaChart({ data }: ChartProps) {
       .filter((_, index) => index % tickInterval === 0)
       .map((item) => item.date);
   }, [rangeData]);
+
+  // For 1D charts, compute a custom x-axis domain and hourly ticks.
+  const xDomain = useMemo(() => {
+    if (range === "1d" && rangeData.length > 0) {
+      const current = rangeData[rangeData.length - 1].date;
+      const eightHoursInMs = 8 * 60 * 60 * 1000;
+      // Market open time (already in Eastern Time)
+      const marketOpenET = new Date(
+        new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
+      );
+      marketOpenET.setHours(9, 30, 0, 0);
+      const lowerBound = Math.max(
+        current - eightHoursInMs,
+        marketOpenET.getTime()
+      );
+      return [lowerBound, current];
+    }
+    return ["dataMin", "dataMax"];
+  }, [range, rangeData]);
+
+  const xTicksCustom = useMemo(() => {
+    if (
+      range === "1d" &&
+      Array.isArray(xDomain) &&
+      typeof xDomain[0] === "number" &&
+      typeof xDomain[1] === "number"
+    ) {
+      const start = xDomain[0] as number;
+      const end = xDomain[1] as number;
+      const oneHour = 60 * 60 * 1000;
+      const ticks = [];
+      // Round up start to the next whole hour
+      const firstTick = Math.ceil(start / oneHour) * oneHour;
+      for (let t = firstTick; t <= end; t += oneHour) {
+        ticks.push(t);
+      }
+      return ticks;
+    }
+    return defaultXTicks;
+  }, [range, xDomain, defaultXTicks]);
+
+  // --- MARKET STATUS ---
+  const isMarketOpen = useMemo(() => {
+    const nowET = new Date(
+      new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
+    );
+    const totalMinutes = nowET.getHours() * 60 + nowET.getMinutes();
+    return totalMinutes >= 570 && totalMinutes < 960; // 9:30 = 570, 16:00 = 960
+  }, []);
+
+  // --- CURRENT DATA POINT ---
+  const currentDataPoint = useMemo(() => {
+    if (isMarketOpen && rangeData.length > 0) {
+      return rangeData[rangeData.length - 1];
+    }
+    return null;
+  }, [isMarketOpen, rangeData]);
 
   return (
     <>
@@ -201,7 +323,8 @@ export default function StockAreaChart({ data }: ChartProps) {
               dataKey="date"
               tickLine={false}
               axisLine={false}
-              ticks={xTicks}
+              ticks={range === "1d" ? xTicksCustom : defaultXTicks}
+              domain={xDomain}
               tickFormatter={(value) => formatXAxisTick(new Date(value), range)}
               className="text-sm font-medium"
             />
@@ -256,6 +379,16 @@ export default function StockAreaChart({ data }: ChartProps) {
               fill="#413ea0"
               isAnimationActive={false}
             />
+            {isMarketOpen && currentDataPoint && (
+              <ReferenceDot
+                xAxisId="0"
+                yAxisId="price"
+                x={currentDataPoint.date}
+                y={currentDataPoint.close}
+                r={5}
+                shape={<PulsingDot />}
+              />
+            )}
           </ComposedChart>
         </ResponsiveContainer>
       </div>
