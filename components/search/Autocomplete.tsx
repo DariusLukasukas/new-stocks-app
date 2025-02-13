@@ -133,7 +133,7 @@ export function Autocomplete() {
             <CommandGroup heading="Suggestions">
               {results.map((item) => (
                 <CommandItem key={item.cik}>
-                  <span className="min-w-fit w-16 font-medium">
+                  <span className="w-16 min-w-fit font-medium">
                     {item.ticker}
                   </span>
                   <span className="flex-1">{capitalizeWords(item.name)}</span>

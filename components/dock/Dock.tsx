@@ -1,15 +1,32 @@
-import React from "react";
+"use client";
+import { useTheme } from "next-themes";
 
 export default function Dock() {
+  const { setTheme } = useTheme();
+
   return (
-    <div className="fixed bottom-4 left-0 w-full flex justify-center">
-      <div className="flex items-end space-x-4 bg-zinc-100/80 backdrop-blur-sm rounded-full p-2 shadow-lg border border-zinc-200">
+    <nav className="fixed bottom-4 left-0 flex w-full justify-center gap-2">
+      <div className="flex items-end space-x-4 rounded-full border p-2 shadow-lg backdrop-blur-sm">
         {[1, 2, 3, 4, 5].map((item) => (
-          <button key={item} className="size-10 bg-zinc-200 rounded-full">
+          <button
+            key={item}
+            className="bg-background size-10 rounded-full border"
+          >
             {item}
           </button>
         ))}
       </div>
-    </div>
+      <div className="flex items-end space-x-4 rounded-full border p-2 shadow-lg backdrop-blur-sm">
+        {["light", "dark", "system"].map((item) => (
+          <button
+            key={item}
+            className="bg-background size-10 rounded-full border"
+            onClick={() => setTheme(item)}
+          >
+            {item[0].toUpperCase()}
+          </button>
+        ))}
+      </div>
+    </nav>
   );
 }
