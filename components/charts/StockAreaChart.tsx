@@ -289,12 +289,8 @@ export default function StockAreaChart({ data }: ChartProps) {
             <defs>
               {/* Gradient definitions (you can use these if desired) */}
               <linearGradient id="colorHigh" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="colorLow" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
+                <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.1} />
+                <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
               </linearGradient>
               {/* Example pattern: 45° diagonal lines */}
               {/* <pattern
@@ -347,7 +343,7 @@ export default function StockAreaChart({ data }: ChartProps) {
               cursor={{
                 strokeWidth: 1,
                 strokeDasharray: "5 5",
-                className: "stroke-primary/50",
+                className: "stroke-primary/20",
               }}
               content={({ active, payload, label }) => (
                 <CustomTooltip
@@ -366,7 +362,7 @@ export default function StockAreaChart({ data }: ChartProps) {
               yAxisId="price"
               type="monotone"
               dataKey="close"
-              stroke="#8884d8"
+              stroke="var(--color-primary)"
               strokeWidth={1.5}
               fillOpacity={1}
               // fill="url(#diagonalLines)"
@@ -376,7 +372,7 @@ export default function StockAreaChart({ data }: ChartProps) {
               yAxisId="volume"
               dataKey="volume"
               fillOpacity={0.2}
-              fill="#413ea0"
+              fill="var(--color-primary)"
               isAnimationActive={false}
             />
             {isMarketOpen && currentDataPoint && (
@@ -398,12 +394,12 @@ export default function StockAreaChart({ data }: ChartProps) {
             key={option.label}
             size="icon"
             variant="outline"
-            disabled={range === option.value}
             onClick={() => {
               router.push(
                 pathname + "?" + createQueryString("range", option.value)
               );
             }}
+            disabled={range === option.value}
             className="select-none"
           >
             {option.label}
