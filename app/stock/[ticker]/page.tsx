@@ -63,13 +63,13 @@ export default async function Page({
         </div>
         <div className="grid grid-cols-2 gap-4 max-w-fit">
           <PriceSection
-            label="After hours"
+            label="At close"
             price={stockData.regularMarketPrice}
             change={stockData.regularMarketChange}
             changePercent={stockData.regularMarketChangePercent}
           />
           <PriceSection
-            label="Pre-market"
+            label="After hours"
             price={stockData.postMarketPrice}
             change={stockData.postMarketChange}
             changePercent={stockData.postMarketChangePercent}
