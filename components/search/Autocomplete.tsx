@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
+import { useRouter } from "next/navigation";
 import {
   CommandDialog,
   Command,
@@ -34,6 +35,8 @@ export function Autocomplete() {
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<TickerRecord[]>([]);
   const renderCount = useRenderCount();
+
+  const router = useRouter();
 
   // We only want to build these Tries one time. Use a ref to store them.
   const nameTrieRef = useRef<Trie<TickerRecord> | null>(null);
@@ -124,6 +127,7 @@ export function Autocomplete() {
           value={searchTerm}
           onValueChange={(val) => setSearchTerm(val)}
           placeholder="Type a command or search..."
+          className="caret-blue-500"
         />
         <CommandList>
           {debouncedSearchTerm.length > 0 && results.length === 0 && (
@@ -132,7 +136,14 @@ export function Autocomplete() {
           {results.length > 0 && (
             <CommandGroup heading="Suggestions">
               {results.map((item) => (
-                <CommandItem key={item.cik}>
+                <CommandItem
+                  key={item.cik}
+                  onSelect={() => {
+                    router.push(`/stock/${item.ticker}`);
+                    setSearchTerm("");
+                    setOpen(false);
+                  }}
+                >
                   <span className="w-16 min-w-fit font-medium">
                     {item.ticker}
                   </span>
@@ -142,7 +153,7 @@ export function Autocomplete() {
               ))}
             </CommandGroup>
           )}
-          <p>Render Count: {renderCount}</p>
+          {/* <p>Render Count: {renderCount}</p> */}
         </CommandList>
       </Command>
     </CommandDialog>

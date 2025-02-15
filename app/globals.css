@@ -98,3 +98,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+[contenteditable]:empty::before {
+  content: attr(data-placeholder);
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
