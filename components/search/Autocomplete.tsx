@@ -30,6 +30,37 @@ const capitalizeWords = (str: string) => {
     .join(" "); // Rejoin into a string
 };
 
+const DEFAULT_SUGGESTIONS = {
+  name: [
+    { cik: 320193, name: "Apple Inc.", ticker: "AAPL", exchange: "NASDAQ" },
+    {
+      cik: 789019,
+      name: "Microsoft Corporation",
+      ticker: "MSFT",
+      exchange: "NASDAQ",
+    },
+    {
+      cik: 1018724,
+      name: "Amazon.com Inc.",
+      ticker: "AMZN",
+      exchange: "NASDAQ",
+    },
+    {
+      cik: 1326801,
+      name: "Meta Platforms Inc.",
+      ticker: "META",
+      exchange: "NASDAQ",
+    },
+    {
+      cik: 1652044,
+      name: "Alphabet Inc.",
+      ticker: "GOOGL",
+      exchange: "NASDAQ",
+    },
+    { cik: 1318605, name: "Tesla Inc.", ticker: "TSLA", exchange: "NASDAQ" },
+  ],
+};
+
 export function Autocomplete() {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -76,28 +107,31 @@ export function Autocomplete() {
   // Debounce the user input so we don't search on every keystroke
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-  // Perform search whenever the debounced value changes
   useEffect(() => {
     const trieName = nameTrieRef.current;
     const trieTicker = tickerTrieRef.current;
 
-    if (!trieName || !trieTicker || !debouncedSearchTerm.trim()) {
+    if (!trieName || !trieTicker) {
       setResults([]);
       return;
     }
 
-    // Get top suggestions from both tries
+    // If no search term, display default suggestions.
+    if (!debouncedSearchTerm.trim()) {
+      setResults(DEFAULT_SUGGESTIONS.name);
+      return;
+    }
+
+    // Otherwise, perform the search on both tries.
     const nameMatches = trieName.getSuggestions(debouncedSearchTerm, 50);
     const tickerMatches = trieTicker.getSuggestions(debouncedSearchTerm, 50);
 
-    // Combine and remove duplicates (by CIK or by ticker, whichever you prefer).
+    // Combine results from both tries and remove duplicates (by cik)
     const combined = [...nameMatches, ...tickerMatches];
     const uniqueMap = new Map<number, TickerRecord>();
     combined.forEach((item: TickerRecord) => {
       uniqueMap.set(item.cik, item);
     });
-
-    // Sort or otherwise refine if you wish.
     const finalResults = Array.from(uniqueMap.values());
 
     setResults(finalResults);
