@@ -99,6 +99,7 @@
   }
 }
 
+/* Notes */
 [contenteditable]:empty::before {
   content: attr(data-placeholder);
   color: var(--muted-foreground);

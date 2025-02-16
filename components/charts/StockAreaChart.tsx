@@ -209,7 +209,13 @@ export default function StockAreaChart({ data }: ChartProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <div style={{ width: "100%", height: 400 }}>
+      <div
+        style={{ width: "100%", height: 400 }}
+        className="relative select-none"
+      >
+        {/* DOTS */}
+        <div className="absolute inset-0 h-full w-full bg-[radial-gradient(var(--color-muted-foreground)_1px,transparent_1px)] [background-size:10px_10px] opacity-25 [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_60%,transparent_100%)]" />
+
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={rawData}
@@ -259,7 +265,7 @@ export default function StockAreaChart({ data }: ChartProps) {
               ticks={defaultXTicks}
               domain={defaultXTicks}
               tickFormatter={(value) => formatXAxisTick(new Date(value), range)}
-              className="text-sm font-medium"
+              className="text-muted-foreground text-sm font-medium"
             />
             <YAxis
               yAxisId="price"

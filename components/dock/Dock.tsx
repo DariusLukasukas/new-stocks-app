@@ -1,5 +1,17 @@
 "use client";
+import { Bolt, Home } from "lucide-react";
 import { useTheme } from "next-themes";
+
+interface DockItem {
+  label: string;
+  link: string;
+  icon: React.ReactNode;
+}
+
+const DATA: DockItem[] = [
+  { label: "Home", link: "/", icon: <Home /> },
+  { label: "Settings", link: "/settings", icon: <Bolt /> },
+];
 
 export default function Dock() {
   const { setTheme } = useTheme();

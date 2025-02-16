@@ -3,9 +3,11 @@ import yahooFinance from "yahoo-finance2";
 import StockAreaChart from "@/components/charts/StockAreaChart";
 import PriceLabel from "@/components/stock/PriceLabel";
 import GoBack from "@/components/ui/go-back";
-import { Moon } from "lucide-react";
+import { Bookmark, Moon, NotebookPen } from "lucide-react";
 import Widget from "@/components/stock/Widget";
 import KPIs from "@/components/stock/KPIs";
+import { Button } from "@/components/ui/button";
+import TickerImage from "@/components/stock/TickerImage";
 
 async function getStockChartData(ticker: string, range: string = "1w") {
   const queryOptions = {
@@ -44,13 +46,28 @@ export default async function Page({
 
   return (
     <div className="container mx-auto">
-      <div className="flex flex-row items-center space-x-2 py-4">
-        <GoBack />
-        <div className="space-x-2">
-          <span className="text-xl font-bold">{stock.symbol}</span>
-          <span className="text-muted-foreground text-xl">
-            {stock.longName}
-          </span>
+      <div className="mb-10 flex flex-row items-center justify-between py-4">
+        <div className="flex flex-row items-center space-x-2">
+          <GoBack />
+
+          <div className="inline-flex size-10 items-center justify-center rounded border bg-black p-1">
+            <TickerImage ticker={ticker} />
+          </div>
+
+          <div className="leading-none">
+            <div className="font-bold">{stock.symbol}</div>
+            <div className="text-muted-foreground">{stock.longName}</div>
+          </div>
+        </div>
+
+        <div className="inline-flex gap-2">
+          <Button variant="secondary">
+            <NotebookPen />
+            Analyze
+          </Button>
+          <Button size="icon" variant="secondary">
+            <Bookmark className="size-5 fill-blue-500 stroke-blue-500" />
+          </Button>
         </div>
       </div>
 
@@ -79,10 +96,12 @@ export default async function Page({
         <div className="w-full">
           <StockAreaChart data={chart} />
         </div>
+
         <div className="h-full w-full max-w-md">
           <Widget />
         </div>
       </div>
+
       <div className="my-4">
         <KPIs ticker={ticker} />
       </div>
