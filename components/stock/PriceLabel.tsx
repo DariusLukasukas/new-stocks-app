@@ -2,9 +2,10 @@ import { cn } from "@/lib/utils";
 
 interface PriceSectionProps {
   label: string;
-  price: number;
-  change: number;
-  changePercent: number;
+  price?: number;
+  change?: number;
+  changePercent?: number;
+  icon?: React.ReactNode;
 }
 
 function formatPercentage(value: number): string {
@@ -18,18 +19,30 @@ function formatUSD(value: number): string {
   }).format(value);
 }
 
-export default function PriceSection({
+export default function PriceLabel({
   label,
   price,
   change,
   changePercent,
+  icon,
 }: PriceSectionProps) {
+  if (
+    price === undefined ||
+    change === undefined ||
+    changePercent === undefined
+  ) {
+    return null;
+  }
+
   const formattedPrice = formatUSD(price);
   const [dollars, decimals] = formattedPrice.split(".");
 
   return (
     <div>
-      <div className="font-medium text-muted-foreground">{label}</div>
+      <div className="text-muted-foreground flex items-center font-medium">
+        {label}
+        {icon && <span className="ml-1">{icon}</span>}
+      </div>
       <div className="space-x-2">
         <span className="text-3xl font-bold">
           {dollars}
@@ -37,8 +50,8 @@ export default function PriceSection({
         </span>
         <span
           className={cn(
-            "text-xl font-semibold mr-1",
-            change > 0 ? "text-green-500" : "text-red-500"
+            "mr-1 text-xl font-semibold",
+            change > 0 ? "text-green-500" : "text-red-500",
           )}
         >
           {change > 0 ? "+" : ""}
@@ -47,7 +60,7 @@ export default function PriceSection({
         <span
           className={cn(
             "text-xl font-semibold",
-            changePercent > 0 ? "text-green-500" : "text-red-500"
+            changePercent > 0 ? "text-green-500" : "text-red-500",
           )}
         >
           ({changePercent > 0 ? "+" : ""}

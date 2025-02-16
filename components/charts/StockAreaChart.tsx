@@ -36,27 +36,27 @@ const PulsingDot = (props: ReferenceDotProps) => {
   const { cx, cy } = props;
   return (
     <g>
-      <circle cx={cx} cy={cy} r="5" fill="#8884d8" />
+      <circle cx={cx} cy={cy} r="4" fill="var(--color-primary)" />
       <circle
         cx={cx}
         cy={cy}
-        r="5"
+        r="10"
         fill="none"
-        stroke="#8884d8"
+        stroke="var(--color-primary)"
         strokeWidth="2"
       >
         <animate
           attributeName="r"
           from="5"
           to="10"
-          dur="1s"
+          dur="2s"
           repeatCount="indefinite"
         />
         <animate
           attributeName="opacity"
           from="1"
           to="0"
-          dur="1s"
+          dur="2s"
           begin="0.5s"
           repeatCount="indefinite"
         />
@@ -73,9 +73,7 @@ function formatXAxisTick(date: Date, range: string): string {
   if (range === "1d") {
     return date.toLocaleTimeString("en-US", {
       timeZone: "America/New_York",
-      hour: "numeric",
-      minute: "numeric",
-      hour12: false,
+      hour: "2-digit",
     });
   } else if (range === "1w" || range === "1m") {
     return date.getDate().toString();
@@ -98,7 +96,7 @@ function formatXAxisTick(date: Date, range: string): string {
 function formatTooltipLabel(date: Date, range: string): string {
   if (range === "1d") {
     return date
-      .toLocaleString("en-GB", {
+      .toLocaleString("en-US", {
         timeZone: "America/New_York",
         day: "2-digit",
         month: "short",
@@ -109,7 +107,7 @@ function formatTooltipLabel(date: Date, range: string): string {
       .replace(/,/g, "");
   } else {
     return date
-      .toLocaleDateString("en-GB", {
+      .toLocaleDateString("en-US", {
         timeZone: "America/New_York",
         day: "2-digit",
         month: "short",
@@ -145,7 +143,7 @@ const CustomTooltip = ({
     const dateLabel = formatTooltipLabel(new Date(label), range);
     const price = payload[0].value;
     return (
-      <div className="bg-white/5 p-2 rounded-md shadow-md border backdrop-blur-sm text-sm text-primary font-medium">
+      <div className="text-primary rounded-md border bg-white/5 p-2 text-sm font-medium shadow-md backdrop-blur-sm">
         <div>{dateLabel}</div>
         <div>Price: {formatPrice(price!)}</div>
       </div>
@@ -164,9 +162,10 @@ export default function StockAreaChart({ data }: ChartProps) {
     (name: string, value: string) => {
       const params = new URLSearchParams(searchParams.toString());
       params.set(name, value);
+
       return params.toString();
     },
-    [searchParams]
+    [searchParams],
   );
 
   // --- ADJUSTING TIMESTAMPS ---
@@ -178,92 +177,23 @@ export default function StockAreaChart({ data }: ChartProps) {
       volume: quote.volume || 0,
     }));
 
-  // --- FILTER DATA FOR 1D ---
-  // For a 1D chart, only include today's quotes (Eastern Time).
-  const rangeData = useMemo(() => {
-    if (range === "1d") {
-      // Compute today's midnight in Eastern Time.
-      const todayET = new Date(
-        new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
-      );
-      todayET.setHours(0, 0, 0, 0);
-      // Compute market open time (9:30 AM Eastern Time)
-      const marketOpenET = new Date(
-        new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
-      );
-      marketOpenET.setHours(9, 30, 0, 0);
-      // Current Eastern time:
-      const nowET = new Date(
-        new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
-      );
-      // If market is open, show only data later than the later of (market open or 8 hours ago)
-      const eightHoursAgo = nowET.getTime() - 8 * 60 * 60 * 1000;
-      const lowerBound = Math.max(eightHoursAgo, marketOpenET.getTime());
-      return rawData.filter(
-        (item) => item.date >= Math.max(todayET.getTime(), lowerBound)
-      );
-    }
-    return rawData;
-  }, [rawData, range]);
-
   // --- X-AXIS TICKS ---
-  // For non-1D ranges, compute ticks normally.
   const defaultXTicks = useMemo(() => {
-    if (rangeData.length === 0) return [];
+    if (rawData.length === 0) return [];
     const desiredTickCount = 5;
     const tickInterval = Math.max(
       1,
-      Math.ceil(rangeData.length / desiredTickCount)
+      Math.ceil(rawData.length / desiredTickCount),
     );
-    return rangeData
+    return rawData
       .filter((_, index) => index % tickInterval === 0)
       .map((item) => item.date);
-  }, [rangeData]);
-
-  // For 1D charts, compute a custom x-axis domain and hourly ticks.
-  const xDomain = useMemo(() => {
-    if (range === "1d" && rangeData.length > 0) {
-      const current = rangeData[rangeData.length - 1].date;
-      const eightHoursInMs = 8 * 60 * 60 * 1000;
-      // Market open time (already in Eastern Time)
-      const marketOpenET = new Date(
-        new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
-      );
-      marketOpenET.setHours(9, 30, 0, 0);
-      const lowerBound = Math.max(
-        current - eightHoursInMs,
-        marketOpenET.getTime()
-      );
-      return [lowerBound, current];
-    }
-    return ["dataMin", "dataMax"];
-  }, [range, rangeData]);
-
-  const xTicksCustom = useMemo(() => {
-    if (
-      range === "1d" &&
-      Array.isArray(xDomain) &&
-      typeof xDomain[0] === "number" &&
-      typeof xDomain[1] === "number"
-    ) {
-      const start = xDomain[0] as number;
-      const end = xDomain[1] as number;
-      const oneHour = 60 * 60 * 1000;
-      const ticks = [];
-      // Round up start to the next whole hour
-      const firstTick = Math.ceil(start / oneHour) * oneHour;
-      for (let t = firstTick; t <= end; t += oneHour) {
-        ticks.push(t);
-      }
-      return ticks;
-    }
-    return defaultXTicks;
-  }, [range, xDomain, defaultXTicks]);
+  }, [rawData]);
 
   // --- MARKET STATUS ---
   const isMarketOpen = useMemo(() => {
     const nowET = new Date(
-      new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
+      new Date().toLocaleString("en-US", { timeZone: "America/New_York" }),
     );
     const totalMinutes = nowET.getHours() * 60 + nowET.getMinutes();
     return totalMinutes >= 570 && totalMinutes < 960; // 9:30 = 570, 16:00 = 960
@@ -271,26 +201,33 @@ export default function StockAreaChart({ data }: ChartProps) {
 
   // --- CURRENT DATA POINT ---
   const currentDataPoint = useMemo(() => {
-    if (isMarketOpen && rangeData.length > 0) {
-      return rangeData[rangeData.length - 1];
+    if (isMarketOpen && rawData.length > 0) {
+      return rawData[rawData.length - 1];
     }
     return null;
-  }, [isMarketOpen, rangeData]);
+  }, [isMarketOpen, rawData]);
 
   return (
-    <>
+    <div className="flex flex-col gap-2">
       <div style={{ width: "100%", height: 400 }}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
-            data={rangeData}
-            margin={{ top: 10, right: 5, left: 5, bottom: 0 }}
+            data={rawData}
+            margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
             className="font-mono"
           >
             <defs>
-              {/* Gradient definitions (you can use these if desired) */}
               <linearGradient id="colorHigh" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.1} />
-                <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-primary)"
+                  stopOpacity={0.0}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-primary)"
+                  stopOpacity={0}
+                />
               </linearGradient>
               {/* Example pattern: 45° diagonal lines */}
               {/* <pattern
@@ -319,8 +256,8 @@ export default function StockAreaChart({ data }: ChartProps) {
               dataKey="date"
               tickLine={false}
               axisLine={false}
-              ticks={range === "1d" ? xTicksCustom : defaultXTicks}
-              domain={xDomain}
+              ticks={defaultXTicks}
+              domain={defaultXTicks}
               tickFormatter={(value) => formatXAxisTick(new Date(value), range)}
               className="text-sm font-medium"
             />
@@ -365,16 +302,15 @@ export default function StockAreaChart({ data }: ChartProps) {
               stroke="var(--color-primary)"
               strokeWidth={1.5}
               fillOpacity={1}
-              // fill="url(#diagonalLines)"
               fill="url(#colorHigh)"
             />
-            <Bar
+            {/* <Bar
               yAxisId="volume"
               dataKey="volume"
               fillOpacity={0.2}
               fill="var(--color-primary)"
               isAnimationActive={false}
-            />
+            /> */}
             {isMarketOpen && currentDataPoint && (
               <ReferenceDot
                 xAxisId="0"
@@ -388,15 +324,15 @@ export default function StockAreaChart({ data }: ChartProps) {
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-      <div className="flex space-x-2">
+      <div className="space-x-2">
         {RANGE_OPTIONS.map((option) => (
           <Button
             key={option.label}
             size="icon"
-            variant="outline"
+            variant="ghost"
             onClick={() => {
               router.push(
-                pathname + "?" + createQueryString("range", option.value)
+                pathname + "?" + createQueryString("range", option.value),
               );
             }}
             disabled={range === option.value}
@@ -406,6 +342,6 @@ export default function StockAreaChart({ data }: ChartProps) {
           </Button>
         ))}
       </div>
-    </>
+    </div>
   );
 }

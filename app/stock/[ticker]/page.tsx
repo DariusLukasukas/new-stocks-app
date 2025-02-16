@@ -1,9 +1,11 @@
 import { getInterval, getPeriod1 } from "@/lib/chartUtils";
 import yahooFinance from "yahoo-finance2";
-import stockData from "@/data/dummy.json";
 import StockAreaChart from "@/components/charts/StockAreaChart";
-import { cn } from "@/lib/utils";
-import PriceSection from "@/components/stock/PriceSection";
+import PriceLabel from "@/components/stock/PriceLabel";
+import GoBack from "@/components/ui/go-back";
+import { Moon } from "lucide-react";
+import Widget from "@/components/stock/Widget";
+import KPIs from "@/components/stock/KPIs";
 
 async function getStockChartData(ticker: string, range: string = "1w") {
   const queryOptions = {
@@ -18,27 +20,12 @@ async function getStockChartData(ticker: string, range: string = "1w") {
 }
 
 async function getStockData(ticker: string) {
-  try {
-    const result = await yahooFinance.quote(ticker);
-    return result;
-  } catch (e) {
-    console.log(e);
-    return null;
-  }
+  const result = await yahooFinance.quote(ticker);
+  return result;
 }
-// export type ChartData = Awaited<ReturnType<typeof getStockChartData>>;
+
+export type ChartData = Awaited<ReturnType<typeof getStockChartData>>;
 export type DEFAULT_INTERVALS = "1m" | "15m" | "30m" | "60m" | "1d";
-
-function formatPercentage(value: number): string {
-  return `${value.toFixed(2)}%`;
-}
-
-function formatUSD(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(value);
-}
 
 export default async function Page({
   params,
@@ -51,32 +38,54 @@ export default async function Page({
   const { range = "1w" } = await searchParams;
 
   const chartData = await getStockChartData(ticker, range as string);
-  // const stockData = await getStockData(ticker);
+  const stockData = await getStockData(ticker);
+
+  const [stock, chart] = await Promise.all([stockData, chartData]);
+
   return (
     <div className="container mx-auto">
-      <div>
-        <div className="flex gap-2">
-          <span className="font-bold text-xl">{stockData.symbol}</span>
-          <span className="text-xl font-medium text-muted-foreground">
-            {stockData.longName}
+      <div className="flex flex-row items-center space-x-2 py-4">
+        <GoBack />
+        <div className="space-x-2">
+          <span className="text-xl font-bold">{stock.symbol}</span>
+          <span className="text-muted-foreground text-xl">
+            {stock.longName}
           </span>
         </div>
-        <div className="grid grid-cols-2 gap-4 max-w-fit">
-          <PriceSection
-            label="At close"
-            price={stockData.regularMarketPrice}
-            change={stockData.regularMarketChange}
-            changePercent={stockData.regularMarketChangePercent}
-          />
-          <PriceSection
-            label="After hours"
-            price={stockData.postMarketPrice}
-            change={stockData.postMarketChange}
-            changePercent={stockData.postMarketChangePercent}
-          />
+      </div>
+
+      <div className="grid max-w-fit grid-cols-2 gap-4">
+        <PriceLabel
+          label="At close"
+          price={stock.regularMarketPrice}
+          change={stock.regularMarketChange}
+          changePercent={stock.regularMarketChangePercent}
+        />
+        <PriceLabel
+          label="After hours"
+          icon={
+            <Moon
+              size={12}
+              className="fill-muted-foreground stroke-muted-foreground"
+            />
+          }
+          price={stock.postMarketPrice}
+          change={stock.postMarketChange}
+          changePercent={stock.postMarketChangePercent}
+        />
+      </div>
+
+      <div className="flex w-full flex-row gap-2">
+        <div className="w-full">
+          <StockAreaChart data={chart} />
+        </div>
+        <div className="h-full w-full max-w-md">
+          <Widget />
         </div>
       </div>
-      <StockAreaChart data={chartData} />
+      <div className="my-4">
+        <KPIs ticker={ticker} />
+      </div>
     </div>
   );
 }
