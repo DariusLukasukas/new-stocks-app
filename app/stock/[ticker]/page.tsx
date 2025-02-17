@@ -3,11 +3,14 @@ import yahooFinance from "yahoo-finance2";
 import StockAreaChart from "@/components/charts/StockAreaChart";
 import PriceLabel from "@/components/stock/PriceLabel";
 import GoBack from "@/components/ui/go-back";
-import { Bookmark, Moon, NotebookPen } from "lucide-react";
+import { Bookmark, Moon, Sparkles } from "lucide-react";
 import Widget from "@/components/stock/Widget";
 import KPIs from "@/components/stock/KPIs";
 import { Button } from "@/components/ui/button";
 import TickerImage from "@/components/stock/TickerImage";
+import AnalystEstimates from "@/components/stock/AnalystEstimates";
+import PriceTarget from "@/components/stock/PriceTarget";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 async function getStockChartData(ticker: string, range: string = "1w") {
   const queryOptions = {
@@ -43,7 +46,7 @@ export default async function Page({
   const stockData = await getStockData(ticker);
 
   const [stock, chart] = await Promise.all([stockData, chartData]);
-  console.log(stock);
+  console.log(chart);
   return (
     <div className="container mx-auto px-2 pb-20">
       <div className="flex flex-row items-center justify-between py-4">
@@ -62,8 +65,8 @@ export default async function Page({
 
         <div className="inline-flex gap-2">
           <Button variant="secondary">
-            <NotebookPen />
-            Analyze
+            <Sparkles />
+            AI Insights
           </Button>
           <Button size="icon" variant="secondary">
             <Bookmark className="size-5 fill-blue-500 stroke-blue-500" />
@@ -112,6 +115,16 @@ export default async function Page({
       <div className="py-10">
         <KPIs ticker={ticker} />
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Analyst estimates</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-2 gap-4 px-20">
+          <AnalystEstimates ticker={ticker} />
+          <PriceTarget ticker={ticker} />
+        </CardContent>
+      </Card>
     </div>
   );
 }

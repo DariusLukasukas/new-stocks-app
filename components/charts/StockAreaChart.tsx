@@ -11,7 +11,7 @@ import {
   TooltipProps,
   ResponsiveContainer,
   ComposedChart,
-  Bar,
+  // Bar,
   ReferenceDot,
   ReferenceDotProps,
 } from "recharts";
