@@ -339,6 +339,7 @@ export default function StockAreaChart({ data }: ChartProps) {
             onClick={() => {
               router.push(
                 pathname + "?" + createQueryString("range", option.value),
+                { scroll: false },
               );
             }}
             disabled={range === option.value}

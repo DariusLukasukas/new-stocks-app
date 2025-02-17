@@ -43,14 +43,14 @@ export default async function Page({
   const stockData = await getStockData(ticker);
 
   const [stock, chart] = await Promise.all([stockData, chartData]);
-
+  console.log(stock);
   return (
-    <div className="container mx-auto">
-      <div className="mb-10 flex flex-row items-center justify-between py-4">
+    <div className="container mx-auto px-2 pb-20">
+      <div className="flex flex-row items-center justify-between py-4">
         <div className="flex flex-row items-center space-x-2">
           <GoBack />
 
-          <div className="inline-flex size-10 items-center justify-center rounded border bg-black p-1">
+          <div className="inline-flex size-10 items-center justify-center rounded-md border bg-black p-1">
             <TickerImage ticker={ticker} />
           </div>
 
@@ -71,38 +71,45 @@ export default async function Page({
         </div>
       </div>
 
-      <div className="grid max-w-fit grid-cols-2 gap-4">
-        <PriceLabel
-          label="At close"
-          price={stock.regularMarketPrice}
-          change={stock.regularMarketChange}
-          changePercent={stock.regularMarketChangePercent}
-        />
-        <PriceLabel
-          label="After hours"
-          icon={
-            <Moon
-              size={12}
-              className="fill-muted-foreground stroke-muted-foreground"
-            />
-          }
-          price={stock.postMarketPrice}
-          change={stock.postMarketChange}
-          changePercent={stock.postMarketChangePercent}
-        />
-      </div>
+      <div className="flex gap-4">
+        <div className="flex-1">
+          <div className="flex flex-row items-center justify-between py-10">
+            <div className="flex gap-2">
+              <PriceLabel
+                label="At close"
+                price={stock.regularMarketPrice}
+                change={stock.regularMarketChange}
+                changePercent={stock.regularMarketChangePercent}
+              />
+              <PriceLabel
+                label="After hours"
+                icon={
+                  <Moon
+                    size={12}
+                    className="fill-muted-foreground stroke-muted-foreground"
+                  />
+                }
+                price={stock.postMarketPrice}
+                change={stock.postMarketChange}
+                changePercent={stock.postMarketChangePercent}
+              />
+            </div>
+            <div className="hidden place-self-end md:block">
+              <div className="text-muted-foreground w-fit rounded-md border px-1.5 py-0.5 font-mono text-sm">
+                {stock.fullExchangeName}·{stock.currency}
+              </div>
+            </div>
+          </div>
 
-      <div className="flex w-full flex-row gap-2">
-        <div className="w-full">
           <StockAreaChart data={chart} />
         </div>
 
-        <div className="h-full w-full max-w-md">
+        <div className="hidden w-full max-w-md self-end lg:block">
           <Widget />
         </div>
       </div>
 
-      <div className="my-4">
+      <div className="py-10">
         <KPIs ticker={ticker} />
       </div>
     </div>

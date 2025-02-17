@@ -24,10 +24,10 @@ type TickerRow = [number, string, string, string];
 
 const capitalizeWords = (str: string) => {
   return str
-    .toLowerCase() // Ensure all letters are lowercase first
-    .split(" ") // Split into words
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize first letter
-    .join(" "); // Rejoin into a string
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 };
 
 const DEFAULT_SUGGESTIONS = {
@@ -65,7 +65,7 @@ export function Autocomplete() {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<TickerRecord[]>([]);
-  const renderCount = useRenderCount();
+  // const renderCount = useRenderCount();
 
   const router = useRouter();
 

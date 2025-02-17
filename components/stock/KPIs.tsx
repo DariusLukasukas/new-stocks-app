@@ -88,10 +88,10 @@ const KPIItem = ({ label, value, formatter }: KPIItemProps) => {
   const formattedValue =
     value != null ? (formatter ? formatter(value) : value) : "N/A";
   return (
-    <div className="flex flex-col items-center">
-      <div className="text-muted-foreground text-sm">{label}</div>
+    <div className="flex w-full flex-row items-center justify-between py-2 lg:flex-col">
+      <div className="text-muted-foreground text-sm font-medium">{label}</div>
       <div
-        className={cn("text-xl font-bold", {
+        className={cn("font-medium", {
           "text-muted-foreground": formattedValue === "N/A",
         })}
       >
@@ -109,7 +109,7 @@ export default async function KPIs({ ticker }: KPIsProps) {
   }
   return (
     <Card>
-      <CardContent className="grid grid-cols-2 justify-between gap-4 divide-x-2 pt-6 sm:grid-cols-8">
+      <CardContent className="divide-y-1 pt-6 lg:grid lg:grid-cols-8 lg:divide-none">
         {KPIS_DATA.map(({ label, key, formatter }) => {
           const value = getNestedValue(stock, key);
           return (
