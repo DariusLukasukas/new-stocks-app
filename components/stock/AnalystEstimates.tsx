@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "../ui/card";
 import StockRadarChart from "../charts/StockRadarChart";
+import { cn } from "@/lib/utils";
 
 async function getStockData(ticker: string) {
   return yahooFinance.quoteSummary(ticker, {
@@ -52,7 +53,15 @@ export default async function AnalystEstimates({
     <Card className={className}>
       <CardHeader className="items-center">
         <CardTitle>Analyst ratings</CardTitle>
-        <CardDescription>{verdict}</CardDescription>
+        <CardDescription
+          className={cn(
+            "font-medium",
+            verdict == "Optimistic" && "text-green-500",
+            verdict == "Pessimistic" && "text-red-500",
+          )}
+        >
+          {verdict}
+        </CardDescription>
       </CardHeader>
       <CardContent className="pb-0">
         <StockRadarChart data={data} />

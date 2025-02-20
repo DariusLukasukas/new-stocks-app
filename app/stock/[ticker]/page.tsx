@@ -11,6 +11,7 @@ import TickerImage from "@/components/stock/TickerImage";
 import AnalystEstimates from "@/components/stock/AnalystEstimates";
 import PriceTarget from "@/components/stock/PriceTarget";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Earnings from "@/components/stock/Earnings";
 
 async function getStockChartData(ticker: string, range: string = "1w") {
   const queryOptions = {
@@ -119,13 +120,19 @@ export default async function Page({
         </Card>
       </div>
 
-      <Card className="border-none bg-neutral-100/50 px-8 dark:bg-zinc-900/70">
+      <Card className="space-y-10 border-none bg-neutral-100/50 px-8 dark:bg-zinc-900/70">
         <CardHeader>
           <CardTitle>Analyst estimates</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-col justify-center gap-8 lg:flex-row">
-          <AnalystEstimates ticker={ticker} className="flex-1 border-none" />
-          <PriceTarget ticker={ticker} className="flex-1 border-none" />
+        <CardContent className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          <AnalystEstimates ticker={ticker} className="border-none" />
+          <PriceTarget ticker={ticker} className="border-none" />
+        </CardContent>
+        <CardHeader>
+          <CardTitle>Earnings</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+          <Earnings ticker={ticker} className="border-none" />
         </CardContent>
       </Card>
     </div>

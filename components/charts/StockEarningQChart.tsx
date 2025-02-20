@@ -36,28 +36,34 @@ const CustomEstimateCircle = (props: Props) => {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CustomReferenceTriangle = (props: any) => {
-  const { cx, cy, r = 12, payload } = props;
+  const { cx, cy, r = 8, payload } = props;
 
   const hit = payload && payload.hit;
   const fill = hit ? "var(--chart-green)" : "var(--chart-red)";
-  let points: string;
 
-  if (hit) {
-    // Upward-pointing triangle
-    points = `${cx},${cy - r} ${cx - r},${cy + r} ${cx + r},${cy + r}`;
-  } else {
-    // Downward-pointing triangle
-    points = `${cx - r},${cy - r} ${cx + r},${cy - r} ${cx},${cy + r}`;
-  }
+  const points = hit
+    ? `${cx},${cy - r} ${cx - r},${cy + r} ${cx + r},${cy + r}`
+    : `${cx - r},${cy - r} ${cx + r},${cy - r} ${cx},${cy + r}`;
+
+  const labelText = hit ? "beat" : "missed";
+  // Place the text above the triangle: top of triangle is at (cy - r).
+  const textOffset = 6;
+  const textY = cy - r - textOffset;
 
   return (
-    <polygon
-      points={points}
-      fill={fill}
-      style={{
-        pointerEvents: "none",
-      }}
-    />
+    <g style={{ pointerEvents: "none" }}>
+      <polygon points={points} fill={fill} />
+      <text
+        x={cx}
+        y={textY}
+        textAnchor="middle"
+        fill={fill}
+        fontSize={12}
+        fontWeight="bold"
+      >
+        {labelText}
+      </text>
+    </g>
   );
 };
 
@@ -119,8 +125,8 @@ export default function StockEarningQChart({ data }: { data: EarningsData }) {
             <pattern
               id="diagonalPattern"
               patternUnits="userSpaceOnUse"
-              width="2"
-              height="2"
+              width="4"
+              height="4"
               patternTransform="rotate(45)"
             >
               <line
@@ -130,7 +136,7 @@ export default function StockEarningQChart({ data }: { data: EarningsData }) {
                 y2="4"
                 stroke="var(--chart-orange)"
                 strokeOpacity={0.5}
-                strokeWidth="2"
+                strokeWidth="4"
               />
             </pattern>
           </defs>
@@ -141,7 +147,11 @@ export default function StockEarningQChart({ data }: { data: EarningsData }) {
             type="category"
             tickFormatter={(value) => value.replace(/(\d+Q)(\d+)/, "$1 $2")}
             allowDuplicatedCategory={false}
-            tick={{ fill: "var(--color-muted-foreground)", fontSize: 14 }}
+            tick={{
+              fill: "var(--color-muted-foreground)",
+              fontSize: 14,
+              fontWeight: "500",
+            }}
           />
           <YAxis
             axisLine={false}
@@ -151,7 +161,11 @@ export default function StockEarningQChart({ data }: { data: EarningsData }) {
             padding={{ top: 20, bottom: 20 }}
             scale={"linear"}
             tickFormatter={(value: number) => `$${value.toFixed(2)}`}
-            tick={{ fill: "var(--color-muted-foreground)", fontSize: 14 }}
+            tick={{
+              fill: "var(--color-muted-foreground)",
+              fontSize: 12,
+              fontWeight: "500",
+            }}
           />
           <CartesianGrid
             syncWithTicks

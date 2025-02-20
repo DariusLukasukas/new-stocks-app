@@ -9,6 +9,7 @@ import {
 } from "../ui/card";
 import { DEFAULT_INTERVALS } from "@/app/stock/[ticker]/page";
 import { getInterval, getPeriod1 } from "@/lib/chartUtils";
+import { cn } from "@/lib/utils";
 
 async function getStockChartData(ticker: string, range: string = "1y") {
   "use cache";
@@ -75,12 +76,18 @@ export default async function PriceTarget({
     return <div>No regular market price data</div>;
   }
 
-  console.log(data);
   return (
     <Card className={className}>
       <CardHeader className="items-center">
         <CardTitle>Price target</CardTitle>
-        <CardDescription>
+        <CardDescription
+          className={cn(
+            "font-medium",
+            calculateUpside(regularMarketPrice, targetHighPrice) > 0
+              ? "text-green-500"
+              : "text-red-500",
+          )}
+        >
           {formatPrice(regularMarketPrice)}(
           {`+${calculateUpside(regularMarketPrice, targetHighPrice).toFixed(2)}%`}{" "}
           potential)
