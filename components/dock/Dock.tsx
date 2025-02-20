@@ -1,79 +1,85 @@
 "use client";
 import {
   BookMarked,
-  ChartLine,
+  ChartNoAxesCombined,
   Cog,
   Home,
   Newspaper,
   NotebookText,
 } from "lucide-react";
-import { useTheme } from "next-themes";
+import ThemeToggleDynamic from "../ui/theme-toggle-dynamic";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface DockItem {
   label: string;
-  link: string;
+  href: string;
   icon: React.ReactNode;
+  disabled?: boolean;
 }
 
 const DATA: DockItem[] = [
   {
     label: "Home",
-    link: "/",
-    icon: <Home className="size-6 stroke-[1.5px]" />,
+    href: "/",
+    icon: <Home />,
   },
   {
     label: "News",
-    link: "/news",
-    icon: <Newspaper className="size-6 stroke-[1.5px]" />,
+    href: "/news",
+    icon: <Newspaper />,
+    disabled: true,
   },
   {
     label: "Screener",
-    link: "/screener",
-    icon: <ChartLine className="size-6 stroke-[1.5px]" />,
+    href: "/screener",
+    icon: <ChartNoAxesCombined />,
+    disabled: true,
   },
   {
     label: "Watchlist",
-    link: "/watchlist",
-    icon: <BookMarked className="size-6 stroke-[1.5px]" />,
+    href: "/watchlist",
+    icon: <BookMarked />,
+    disabled: true,
   },
   {
     label: "Notes",
-    link: "/notes",
-    icon: <NotebookText className="size-6 stroke-[1.5px]" />,
+    href: "/notes",
+    icon: <NotebookText />,
+    disabled: true,
   },
   {
     label: "Settings",
-    link: "/settings",
-    icon: <Cog className="size-6 stroke-[1.5px]" />,
+    href: "/settings",
+    icon: <Cog />,
+    disabled: true,
   },
 ];
 
 export default function Dock() {
-  const { setTheme } = useTheme();
-
   return (
-    <nav className="fixed bottom-4 left-0 flex w-full justify-center gap-2">
-      <div className="flex items-end space-x-4 rounded-full border p-2 shadow-lg backdrop-blur-sm">
-        {DATA.map((item, index) => (
-          <button
-            key={index}
-            className="bg-background text-muted-foreground flex size-10 items-center justify-center rounded-full border"
-          >
-            {item.icon}
-          </button>
-        ))}
+    <div className="fixed bottom-4 z-50 w-full">
+      <div className="container mx-auto flex items-center justify-center">
+        <nav className="animate-dock-slide-up dark:bg-background/10 flex items-center gap-4 rounded-full border bg-neutral-200/50 p-2 shadow-lg backdrop-blur-sm transition-transform will-change-transform">
+          {DATA.map((item, index) => (
+            <button
+              key={index}
+              disabled={item.disabled}
+              tabIndex={item.disabled ? -1 : 0}
+              className="bg-background text-muted-foreground hover:text-accent-foreground ring-ring/10 dark:ring-ring/20 dark:outline-ring/40 outline-ring/50 flex size-10 items-center justify-center rounded-full border focus-visible:ring-4 focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 aria-invalid:focus-visible:ring-0"
+            >
+              <Link
+                href={item.href}
+                className={cn(item.disabled && "pointer-events-none")}
+                aria-disabled={item.disabled}
+              >
+                {item.icon}
+              </Link>
+            </button>
+          ))}
+          <ThemeToggleDynamic />
+        </nav>
       </div>
-      <div className="flex items-end space-x-4 rounded-full border p-2 shadow-lg backdrop-blur-sm">
-        {["light", "dark", "system"].map((item) => (
-          <button
-            key={item}
-            className="bg-background size-10 rounded-full border"
-            onClick={() => setTheme(item)}
-          >
-            {item[0].toUpperCase()}
-          </button>
-        ))}
-      </div>
-    </nav>
+    </div>
   );
 }

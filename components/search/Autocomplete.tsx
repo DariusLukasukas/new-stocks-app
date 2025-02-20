@@ -178,11 +178,15 @@ export function Autocomplete() {
                     setOpen(false);
                   }}
                 >
-                  <span className="w-16 min-w-fit font-medium">
+                  <span className="w-16 min-w-fit font-semibold">
                     {item.ticker}
                   </span>
-                  <span className="flex-1">{capitalizeWords(item.name)}</span>
-                  <span className="ml-auto">{item.exchange}</span>
+                  <span className="flex-1 font-medium">
+                    {capitalizeWords(item.name)}
+                  </span>
+                  <span className="text-muted-foreground ml-auto text-sm font-medium">
+                    {item.exchange}
+                  </span>
                 </CommandItem>
               ))}
             </CommandGroup>

@@ -15,9 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 async function getStockChartData(ticker: string, range: string = "1w") {
   const queryOptions = {
     period1: getPeriod1(range),
-    period2: new Date()
-      .toLocaleString("en-US", { timeZone: "America/New_York" })
-      .split("T")[0],
+    period2: new Date().getTime(),
     interval: getInterval(range) as DEFAULT_INTERVALS,
   };
   const result = await yahooFinance.chart(ticker, queryOptions);
@@ -46,9 +44,8 @@ export default async function Page({
   const stockData = await getStockData(ticker);
 
   const [stock, chart] = await Promise.all([stockData, chartData]);
-  console.log(chart);
   return (
-    <div className="container mx-auto px-2 pb-20">
+    <div className="container mx-auto px-2 pb-32">
       <div className="flex flex-row items-center justify-between py-4">
         <div className="flex flex-row items-center space-x-2">
           <GoBack />
@@ -59,7 +56,9 @@ export default async function Page({
 
           <div className="leading-none">
             <div className="font-bold">{stock.symbol}</div>
-            <div className="text-muted-foreground">{stock.longName}</div>
+            <div className="text-muted-foreground font-medium">
+              {stock.longName}
+            </div>
           </div>
         </div>
 
@@ -113,16 +112,20 @@ export default async function Page({
       </div>
 
       <div className="py-10">
-        <KPIs ticker={ticker} />
+        <Card className="border-none bg-neutral-100/50 dark:bg-zinc-900/70">
+          <CardContent className="divide-y-1 pt-6 lg:grid lg:grid-cols-8 lg:divide-none">
+            <KPIs ticker={ticker} />
+          </CardContent>
+        </Card>
       </div>
 
-      <Card>
+      <Card className="border-none bg-neutral-100/50 px-8 dark:bg-zinc-900/70">
         <CardHeader>
           <CardTitle>Analyst estimates</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4 px-20">
-          <AnalystEstimates ticker={ticker} />
-          <PriceTarget ticker={ticker} />
+        <CardContent className="flex flex-col justify-center gap-8 lg:flex-row">
+          <AnalystEstimates ticker={ticker} className="flex-1 border-none" />
+          <PriceTarget ticker={ticker} className="flex-1 border-none" />
         </CardContent>
       </Card>
     </div>

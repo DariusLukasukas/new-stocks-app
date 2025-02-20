@@ -58,24 +58,31 @@ export default async function PriceTarget({
   if (!data.financialData) {
     return <div>No data</div>;
   }
-  const { targetHighPrice, targetLowPrice } = data.financialData;
-  if (!targetHighPrice || !targetLowPrice) {
+  const { targetHighPrice, targetLowPrice, targetMedianPrice } =
+    data.financialData;
+
+  if (!targetHighPrice || !targetLowPrice || !targetMedianPrice) {
     return <div>No target price data</div>;
   }
+
   if (!data.price) {
     return <div>No price data</div>;
   }
+
   const { regularMarketPrice } = data.price;
+
   if (!regularMarketPrice) {
     return <div>No regular market price data</div>;
   }
+
+  console.log(data);
   return (
     <Card className={className}>
       <CardHeader className="items-center">
         <CardTitle>Price target</CardTitle>
         <CardDescription>
           {formatPrice(regularMarketPrice)}(
-          {`${calculateUpside(regularMarketPrice, targetHighPrice).toFixed(2)}%`}{" "}
+          {`+${calculateUpside(regularMarketPrice, targetHighPrice).toFixed(2)}%`}{" "}
           potential)
         </CardDescription>
       </CardHeader>
@@ -83,6 +90,7 @@ export default async function PriceTarget({
         <StockLineChart
           targetHighPrice={targetHighPrice}
           targetLowPrice={targetLowPrice}
+          targetMedianPrice={targetMedianPrice}
           chartData={chartData}
         />
       </CardContent>

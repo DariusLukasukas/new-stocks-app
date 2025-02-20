@@ -63,12 +63,12 @@ export default function StockRadarChart({ data }: { data: RadarChartData }) {
         <Radar
           name="Current"
           dataKey="value"
-          stroke="var(--color-chart-1)"
-          fill="var(--color-chart-1)"
+          stroke="var(--chart-blue)"
+          fill="var(--chart-blue)"
           fillOpacity={0.6}
           dot={{
             r: 4,
-            fill: "var(--color-card-foreground)",
+            fill: "var(--chart-blue)",
             fillOpacity: 1,
           }}
         />

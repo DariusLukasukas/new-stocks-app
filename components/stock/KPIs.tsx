@@ -1,5 +1,4 @@
 import yahooFinance from "yahoo-finance2";
-import { Card, CardContent } from "../ui/card";
 import { cn } from "@/lib/utils";
 
 // Formatters
@@ -108,20 +107,18 @@ export default async function KPIs({ ticker }: KPIsProps) {
     return null;
   }
   return (
-    <Card>
-      <CardContent className="divide-y-1 pt-6 lg:grid lg:grid-cols-8 lg:divide-none">
-        {KPIS_DATA.map(({ label, key, formatter }) => {
-          const value = getNestedValue(stock, key);
-          return (
-            <KPIItem
-              key={key}
-              label={label}
-              value={value}
-              formatter={formatter}
-            />
-          );
-        })}
-      </CardContent>
-    </Card>
+    <>
+      {KPIS_DATA.map(({ label, key, formatter }) => {
+        const value = getNestedValue(stock, key);
+        return (
+          <KPIItem
+            key={key}
+            label={label}
+            value={value}
+            formatter={formatter}
+          />
+        );
+      })}
+    </>
   );
 }

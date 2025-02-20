@@ -30,6 +30,11 @@
   --chart-4: hsl(43 74% 66%);
   --chart-5: hsl(27 87% 67%);
   --radius: 0.6rem;
+  --chart-blue: hsl(211, 100%, 50%);
+  --chart-green: hsl(135, 59%, 49%);
+  --chart-red: hsl(3, 100%, 59%);
+  --chart-orange: hsl(35, 100%, 50%);
+  --chart-yellow: hsl(48, 100%, 50%);
 }
 
 .dark {
@@ -57,6 +62,11 @@
   --chart-3: hsl(30 80% 55%);
   --chart-4: hsl(280 65% 60%);
   --chart-5: hsl(340 75% 55%);
+  --chart-blue: hsl(210, 100%, 52%);
+  --chart-green: hsl(135, 64%, 50%);
+  --chart-red: hsl(3, 100%, 61%);
+  --chart-orange: hsl(36, 100%, 52%);
+  --chart-yellow: hsl(50, 100%, 52%);
 }
 
 @theme inline {
@@ -84,6 +94,11 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
+  --color-chart-blue: var(--chart-blue);
+  --color-chart-green: var(--chart-green);
+  --color-chart-red: var(--chart-red);
+  --color-chart-orange: var(--chart-orange);
+  --color-chart-yellow: var(--chart-yellow);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -97,6 +112,31 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@theme {
+  --animate-theme-spin: theme-spin 1s ease-in-out 1;
+  --animate-dock-slide-up: dock-slide-up 0.3s ease-in-out 1;
+
+  @keyframes theme-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes dock-slide-up {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+}
+
+html body[data-scroll-locked] {
+  overflow: visible !important;
+  margin-right: 0 !important;
 }
 
 /* Notes */
