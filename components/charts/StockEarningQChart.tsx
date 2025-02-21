@@ -70,7 +70,7 @@ const CustomReferenceTriangle = (props: any) => {
 const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
     return (
-      <div className="text-primary rounded-md border bg-white/5 p-2 text-sm font-medium shadow-md backdrop-blur-sm">
+      <div className="rounded-md border bg-white/5 p-2 text-sm font-medium shadow-md backdrop-blur-sm">
         <p className="text-primary">
           {payload[0].payload.actual && (
             <span>Actual: ${payload[0].payload.actual}</span>
@@ -140,6 +140,7 @@ export default function StockEarningQChart({ data }: { data: EarningsData }) {
               />
             </pattern>
           </defs>
+
           <XAxis
             tickLine={false}
             axisLine={false}
@@ -154,8 +155,8 @@ export default function StockEarningQChart({ data }: { data: EarningsData }) {
             }}
           />
           <YAxis
-            axisLine={false}
             tickLine={false}
+            axisLine={false}
             orientation="right"
             domain={["dataMin", "dataMax"]}
             padding={{ top: 20, bottom: 20 }}
