@@ -12,10 +12,10 @@ This application is designed to help you quickly search for U.S. publicly traded
 - Interactive Charts: Visualizing stock performance using Recharts library.
 
 ## Data Sources
-Company Tickers Dataset
-File: company_tickers_exchange.json 
-Size: 539.29 kB 
-Remote Source: SEC.gov
+Company Tickers Dataset:
+> **File:** `company_tickers_exchange.json`  
+> **Size:** 539.29 kB  
+> **Source:** [SEC.gov](https://www.sec.gov/)
 
 This JSON file contains basic identification information about publicly traded companies filing with the U.S. Securities and Exchange Commission (SEC). Each entry consists of:
 - CIK (Central Index Key): Unique identifier assigned by the SEC.
