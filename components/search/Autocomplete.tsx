@@ -10,8 +10,8 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import tickersData from "@/data/tickers.json";
-import { useDebounce, useRenderCount } from "@uidotdev/usehooks";
+import COMPANY_TICKER_EXCHANGE from "@/data/company_tickers_exchange.json";
+import { useDebounce } from "@uidotdev/usehooks";
 import { Trie } from "./Trie";
 
 type TickerRecord = {
@@ -79,7 +79,7 @@ export function Autocomplete() {
       const nameTrie = new Trie<TickerRecord>();
       const tickerTrie = new Trie<TickerRecord>();
 
-      const { fields, data } = tickersData;
+      const { fields, data } = COMPANY_TICKER_EXCHANGE;
 
       const cikIndex = fields.indexOf("cik");
       const nameIndex = fields.indexOf("name");
