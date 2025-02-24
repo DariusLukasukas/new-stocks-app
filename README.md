@@ -1,4 +1,26 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Overview
+This application is designed to help you quickly search for U.S. publicly traded companies by ticker or name, retrieve up-to-date financial data, and visualize key metrics.
+
+## Features
+- Trie-based Autocomplete: For fast and efficient by company name or ticker lookups.
+- Finance API Integration: Fetching real-time and historical stock data from Yahoo Finance.
+- Interactive Charts: Visualizing stock performance using Recharts library.
+
+## Data Sources
+Company Tickers Dataset
+File: company_tickers_exchange.json 
+Size: 539.29 kB 
+Remote Source: SEC.gov
+
+This JSON file contains basic identification information about publicly traded companies filing with the U.S. Securities and Exchange Commission (SEC). Each entry consists of:
+- CIK (Central Index Key): Unique identifier assigned by the SEC.
+- Name: The company’s official name.
+- Ticker: The symbol under which the company trades.
+- Exchange: The stock exchange where the company is listed.
+  
+The JSON object has two primary keys:
+- fields: an array of field names in order, e.g. ["cik", "name", "ticker", "exchange"].
+- data: an array of company records, each structured like [789019, "MICROSOFT CORP", "MSFT", "Nasdaq"].
 
 ## Getting Started
 
