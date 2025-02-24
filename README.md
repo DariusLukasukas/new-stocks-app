@@ -11,6 +11,13 @@ This application is designed to help you quickly search for U.S. publicly traded
 - Finance API Integration: Fetching real-time and historical stock data from Yahoo Finance.
 - Interactive Charts: Visualizing stock performance using Recharts library.
 
+## Project Roadmap
+- [X] Autocomplete
+- [ ] User authentication
+- [ ] AI summary of stocks
+- [ ] Stock watchlist
+- [ ] Notes
+
 ## Data Sources
 Company Tickers Dataset:
 > **File:** `company_tickers_exchange.json`  
