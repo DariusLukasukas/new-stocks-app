@@ -92,8 +92,8 @@ export default function EarningBarChart({ data }: { data: EarningsData }) {
   const { quarterly } = data.earnings?.financialsChart || {};
 
   return (
-    <div style={{ width: "100%", height: 400 }}>
-      <ResponsiveContainer width="100%" height={400}>
+    <div style={{ width: "100%", height: 350 }}>
+      <ResponsiveContainer width="100%" height="100%">
         <BarChart data={quarterly}>
           <defs>
             <linearGradient
@@ -156,9 +156,12 @@ export default function EarningBarChart({ data }: { data: EarningsData }) {
           <Bar
             dataKey="revenue"
             fill="var(--primary)"
-            shape={<CustomRevenueBar />}
+            shape={(props) => <CustomRevenueBar {...props} />}
           />
-          <Bar dataKey="earnings" shape={<CustomEarningsBar />} />
+          <Bar
+            dataKey="earnings"
+            shape={(props) => <CustomEarningsBar {...props} />}
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>

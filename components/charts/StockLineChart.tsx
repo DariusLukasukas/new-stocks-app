@@ -104,7 +104,7 @@ export default function StockLineChart({
   const lastForecastPoint = forecastPoints[forecastPoints.length - 1];
 
   return (
-    <div style={{ width: "100%", height: 400 }}>
+    <div style={{ width: "100%", height: 350 }}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={fullData}

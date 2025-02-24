@@ -214,7 +214,7 @@ export default function StockAreaChart({ data }: ChartProps) {
         className="relative select-none"
       >
         {/* DOTS */}
-        <div className="absolute inset-0 h-full w-full bg-[radial-gradient(var(--color-muted-foreground)_1px,transparent_1px)] [background-size:10px_10px] opacity-25 [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_60%,transparent_100%)]" />
+        <div className="absolute inset-0 h-full w-full bg-[radial-gradient(var(--color-muted-foreground)_0.5px,transparent_0.5px)] [background-size:14px_14px] opacity-25 [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_60%,transparent_100%)]" />
 
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart

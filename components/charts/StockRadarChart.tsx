@@ -31,48 +31,46 @@ export default function StockRadarChart({ data }: { data: RadarChartData }) {
   ];
 
   return (
-    <ResponsiveContainer
-      width="100%"
-      height={400}
-      className="mx-auto aspect-square"
-    >
-      <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
-        <PolarGrid stroke="var(--border)" />
-        <PolarAngleAxis
-          dataKey="label"
-          tick={(props) => {
-            const { payload, ...rest } = props;
-            const dataItem = chartData.find(
-              (item) => item.label === payload.value,
-            );
-            const displayValue = dataItem ? dataItem.value : "-";
+    <div style={{ width: "100%", height: 350 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
+          <PolarGrid stroke="var(--border)" />
+          <PolarAngleAxis
+            dataKey="label"
+            tick={(props) => {
+              const { payload, ...rest } = props;
+              const dataItem = chartData.find(
+                (item) => item.label === payload.value,
+              );
+              const displayValue = dataItem ? dataItem.value : "-";
 
-            return (
-              <text {...rest} y={rest.y + 4} className="text-sm font-medium">
-                <tspan fill="var(--color-muted-foreground)">
-                  {payload?.value}
-                </tspan>
-                <tspan fill="var(--color-card-foreground)">
-                  {" "}
-                  {displayValue}
-                </tspan>
-              </text>
-            );
-          }}
-        />
-        <Radar
-          name="Current"
-          dataKey="value"
-          stroke="var(--chart-blue)"
-          fill="var(--chart-blue)"
-          fillOpacity={0.6}
-          dot={{
-            r: 4,
-            fill: "var(--chart-blue)",
-            fillOpacity: 1,
-          }}
-        />
-      </RadarChart>
-    </ResponsiveContainer>
+              return (
+                <text {...rest} y={rest.y + 4} className="text-sm font-medium">
+                  <tspan fill="var(--color-muted-foreground)">
+                    {payload?.value}
+                  </tspan>
+                  <tspan fill="var(--color-card-foreground)">
+                    {" "}
+                    {displayValue}
+                  </tspan>
+                </text>
+              );
+            }}
+          />
+          <Radar
+            name="Current"
+            dataKey="value"
+            stroke="var(--chart-blue)"
+            fill="var(--chart-blue)"
+            fillOpacity={0.6}
+            dot={{
+              r: 4,
+              fill: "var(--chart-blue)",
+              fillOpacity: 1,
+            }}
+          />
+        </RadarChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
