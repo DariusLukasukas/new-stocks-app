@@ -1,5 +1,10 @@
+
 ## Overview
 This application is designed to help you quickly search for U.S. publicly traded companies by ticker or name, retrieve up-to-date financial data, and visualize key metrics.
+
+![Watch the video](https://github.com/user-attachments/assets/2f606c14-a937-48f8-96ac-2858651d678c)
+
+![CleanShot 2025-02-21 at 20 08 10@2x](https://github.com/user-attachments/assets/7763f484-7fb6-4489-88bd-4188413f9e76)
 
 ## Features
 - Trie-based Autocomplete: For fast and efficient by company name or ticker lookups.
