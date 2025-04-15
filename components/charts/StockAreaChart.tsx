@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { ChartData } from "@/app/stock/[ticker]/page";
 import {
   Area,
@@ -15,7 +15,7 @@ import {
   ReferenceDot,
   ReferenceDotProps,
 } from "recharts";
-import { Button } from "@/components/ui/button";
+import Range from "./Range";
 
 interface ChartProps {
   data: ChartData;
@@ -153,20 +153,8 @@ const CustomTooltip = ({
 };
 
 export default function StockAreaChart({ data }: ChartProps) {
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const range = searchParams.get("range") || "1w";
-
-  const createQueryString = useCallback(
-    (name: string, value: string) => {
-      const params = new URLSearchParams(searchParams.toString());
-      params.set(name, value);
-
-      return params.toString();
-    },
-    [searchParams],
-  );
 
   // --- ADJUSTING TIMESTAMPS ---
   const rawData = data.quotes
@@ -208,13 +196,13 @@ export default function StockAreaChart({ data }: ChartProps) {
   }, [isMarketOpen, rawData]);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col">
       <div
         style={{ width: "100%", height: 400 }}
         className="relative select-none"
       >
         {/* DOTS */}
-        <div className="absolute inset-0 h-full w-full bg-[radial-gradient(var(--color-muted-foreground)_0.5px,transparent_0.5px)] [background-size:14px_14px] opacity-25 [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_60%,transparent_100%)]" />
+        <div className="absolute inset-0 h-full w-full bg-[radial-gradient(var(--color-muted-foreground)_0.5px,transparent_0.5px)] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_60%,transparent_100%)] [background-size:14px_14px] opacity-25" />
 
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
@@ -235,28 +223,6 @@ export default function StockAreaChart({ data }: ChartProps) {
                   stopOpacity={0}
                 />
               </linearGradient>
-              {/* Example pattern: 45° diagonal lines */}
-              {/* <pattern
-                  id="diagonalLines"
-                  patternUnits="userSpaceOnUse"
-                  width="4"
-                  height="4"
-                  patternTransform="rotate(45)"
-                >
-                  <line
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="4"
-                    strokeWidth="2"
-                    className="stroke-primary/10"
-                  />
-                </pattern> */}
-              {/* Example pattern: dots (uncomment to use)
-                <pattern id="dotsPattern" patternUnits="userSpaceOnUse" width="4" height="4">
-                  <circle cx="2" cy="2" r="1" fill="#8884d8" />
-                </pattern>
-                */}
             </defs>
             <XAxis
               dataKey="date"
@@ -297,10 +263,6 @@ export default function StockAreaChart({ data }: ChartProps) {
                 />
               )}
             />
-            {/* Possible to choose the fill style for the area:
-                  - Use the gradient: fill="url(#colorHigh)"
-                  - Or use the pattern: fill="url(#diagonalLines)" or fill="url(#dotsPattern)"
-              */}
             <Area
               yAxisId="price"
               type="monotone"
@@ -310,13 +272,6 @@ export default function StockAreaChart({ data }: ChartProps) {
               fillOpacity={1}
               fill="url(#colorHigh)"
             />
-            {/* <Bar
-              yAxisId="volume"
-              dataKey="volume"
-              fillOpacity={0.2}
-              fill="var(--color-primary)"
-              isAnimationActive={false}
-            /> */}
             {isMarketOpen && currentDataPoint && (
               <ReferenceDot
                 xAxisId="0"
@@ -330,25 +285,7 @@ export default function StockAreaChart({ data }: ChartProps) {
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-      <div className="space-x-2">
-        {RANGE_OPTIONS.map((option) => (
-          <Button
-            key={option.label}
-            size="icon"
-            variant="ghost"
-            onClick={() => {
-              router.push(
-                pathname + "?" + createQueryString("range", option.value),
-                { scroll: false },
-              );
-            }}
-            disabled={range === option.value}
-            className="select-none"
-          >
-            {option.label}
-          </Button>
-        ))}
-      </div>
+      <Range RANGE_OPTIONS={RANGE_OPTIONS} />
     </div>
   );
 }

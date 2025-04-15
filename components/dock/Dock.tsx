@@ -52,7 +52,6 @@ const DATA: DockItem[] = [
     label: "Settings",
     href: "/settings",
     icon: <Cog />,
-    disabled: true,
   },
 ];
 

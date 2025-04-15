@@ -109,10 +109,6 @@ export default async function Page({
 
           <StockAreaChart data={chart} />
         </div>
-
-        <div className="hidden w-full max-w-md self-end lg:block">
-          <Widget />
-        </div>
       </div>
 
       <div className="py-10">
