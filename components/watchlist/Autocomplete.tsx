@@ -74,9 +74,7 @@ export default function Autocomplete({
 }: AutocompleteProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [results, setResults] = useState<TickerRecord[]>([]);
-  // const renderCount = useRenderCount();
 
-  // We only want to build these Tries one time. Use a ref to store them.
   const nameTrieRef = useRef<Trie<TickerRecord> | null>(null);
   const tickerTrieRef = useRef<Trie<TickerRecord> | null>(null);
 
@@ -201,7 +199,6 @@ export default function Autocomplete({
             })}
           </CommandGroup>
         )}
-        {/* <p>Render Count: {renderCount}</p> */}
       </CommandList>
     </Command>
   );

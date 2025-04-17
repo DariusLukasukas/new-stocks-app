@@ -21,6 +21,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { updateWatchlistOrder } from "@/app/watchlist/actions";
 
 function cloneDeep(object: object) {
   return JSON.parse(JSON.stringify(object));
@@ -122,12 +123,6 @@ export default function Watchlist({
   initialData,
   initialColumns,
 }: WatchlistProps) {
-  // const [items, setItems] = useState<Record<string, string[]>>({
-  //   [DEFAULT_COLUMN]: ["AAPL", "MSFT"],
-  //   "Column 1": ["TSLA", "META"],
-  // });
-  // const [columns, setColumns] = useState(Object.keys(items));
-
   const [items, setItems] = useState<Record<string, string[]>>(initialData);
   const [columns, setColumns] = useState(initialColumns);
 
@@ -273,7 +268,12 @@ export default function Watchlist({
         const { source } = event.operation;
 
         if (source?.type === "column") {
-          setColumns((columns) => move(columns, event));
+          const newColumns = move(columns, event);
+          setColumns(newColumns);
+
+          updateWatchlistOrder(
+            newColumns.map((name, idx) => ({ name, position: idx })),
+          );
         }
       }}
     >

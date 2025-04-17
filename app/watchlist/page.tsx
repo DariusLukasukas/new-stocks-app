@@ -5,29 +5,26 @@ import { createClient } from "@/utils/supabase/server";
 export default async function page() {
   const supabase = await createClient();
 
-  const { data: watchlists, error } = await supabase
+  const { data, error } = await supabase
     .from("watchlists")
-    .select("*")
+    .select("*, watchlist_items(*)")
     .order("position", { ascending: true });
 
-  if (error || !watchlists) {
+  if (error || !data) {
     console.error("Error fetching watchlist data:", error);
     return null;
   }
 
-  // Create a mapping from watchlist id to watchlist name
-  const idToName: Record<number, string> = {};
-  // This structure will hold our organized data, e.g. { "Holdings": ["AAPL", "MSFT"], "Column 1": ["TSLA", "META"] }
   const initialData: Record<string, string[]> = {};
 
-  // Initialize the initialData object based on watchlists rows
-  for (const watchlist of watchlists) {
-    idToName[watchlist.id] = watchlist.name;
-    // Use the name as the key. The ordering of keys here doesn’t matter; we will preserve ordering by having a separate list if needed.
-    initialData[watchlist.name] = [];
-  }
+  const sortedColumns: string[] = [];
 
-  const sortedColumns = watchlists.map((w) => w.name);
+  for (const watchlist of data) {
+    sortedColumns.push(watchlist.name);
+    initialData[watchlist.name] = (watchlist.watchlist_items || []).map(
+      (item) => item.ticker,
+    );
+  }
 
   return (
     <Container variant={"fullMobileConstrainedPadded"}>
