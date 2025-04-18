@@ -10,8 +10,8 @@
     "update-types": "npx supabase gen types --lang=typescript --project-id \"mjvmultojgvkuivteoum\" > utils/database.types.ts"
   },
   "dependencies": {
-    "@dnd-kit/helpers": "^0.0.10",
-    "@dnd-kit/react": "^0.0.10",
+    "@dnd-kit/helpers": "^0.1.0",
+    "@dnd-kit/react": "^0.1.0",
     "@radix-ui/react-checkbox": "^1.1.5",
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-dropdown-menu": "^2.1.6",

@@ -60,6 +60,7 @@ function Item({
     >
       {showEditColumn && (
         <Checkbox
+          aria-label="Select ticker to delete"
           checked={checked}
           onCheckedChange={() => onToggleCheck && onToggleCheck(column, id)}
         />
@@ -104,6 +105,7 @@ function Column({
             variant={"custom"}
             onClick={onRemove}
             className="hidden group-hover/card:inline-flex"
+            aria-label="Delete watchlist column"
           >
             <X />
           </Button>
@@ -125,8 +127,10 @@ export default function Watchlist({
 }: WatchlistProps) {
   const [items, setItems] = useState<Record<string, string[]>>(initialData);
   const [columns, setColumns] = useState(initialColumns);
+  const snapshot = useRef(cloneDeep(items));
 
   const [newColumnName, setNewColumnName] = useState("");
+  const [showAddColumnError, setShowAddColumnError] = useState(false);
 
   const [showAddColumn, setShowAddColumn] = useState(false);
   const [showAddTicker, setShowAddTicker] = useState(false);
@@ -136,8 +140,6 @@ export default function Watchlist({
   const [selectedItems, setSelectedItems] = useState<Record<string, boolean>>(
     {},
   );
-
-  const snapshot = useRef(cloneDeep(items));
 
   function handleRemoveColumn(column: string) {
     if (column === DEFAULT_COLUMN) return;
@@ -184,7 +186,7 @@ export default function Watchlist({
     }));
   }
 
-  function toggleTickerInColumn(column: string, tickerRecord: TickerRecord) {
+  function addItemToColumn(column: string, tickerRecord: TickerRecord) {
     const add = () => {
       setItems((prevItems) => {
         // Normalize ticker strings for a case-insensitive check.
@@ -221,7 +223,7 @@ export default function Watchlist({
   // Compute the number of checked items across all columns
   const numChecked = Object.values(selectedItems).filter(Boolean).length;
 
-  function handleDeleteCheckedItems() {
+  function deleteItemsFromColumn() {
     const deleteItems = () => {
       setItems((prevItems) => {
         // Filter out checked items from each column
@@ -242,6 +244,18 @@ export default function Watchlist({
     } else {
       deleteItems();
     }
+  }
+
+  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const value = event.target.value;
+    setNewColumnName(value);
+
+    setShowAddColumnError(
+      value.trim() !== "" &&
+        Object.keys(items).some(
+          (key) => key.toLowerCase() === value.trim().toLowerCase(),
+        ),
+    );
   }
 
   return (
@@ -355,8 +369,9 @@ export default function Watchlist({
               <span className="font-medium">{numChecked} selected</span>
               <Button
                 variant={"secondary"}
-                onClick={handleDeleteCheckedItems}
+                onClick={deleteItemsFromColumn}
                 className="text-red-500"
+                aria-label="Delete selected items"
               >
                 Delete
               </Button>
@@ -366,7 +381,7 @@ export default function Watchlist({
           {showAddTicker && (
             <Autocomplete
               onSelect={(tickerRecord) =>
-                toggleTickerInColumn(DEFAULT_COLUMN, tickerRecord)
+                addItemToColumn(DEFAULT_COLUMN, tickerRecord)
               }
               showAddTicker={() => setShowAddTicker(false)}
               existingTickers={items[DEFAULT_COLUMN]}
@@ -375,31 +390,41 @@ export default function Watchlist({
 
           {/* Add new watchlist */}
           {showAddColumn && (
-            <div className="flex flex-row gap-2">
-              <Input
-                placeholder="Add watchlist"
-                value={newColumnName}
-                onChange={(e) => setNewColumnName(e.target.value)}
-              />
-              <Button
-                variant={"secondary"}
-                onClick={() => {
-                  setShowAddColumn(false);
-                  setNewColumnName("");
-                }}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant={"secondary"}
-                onClick={() => {
-                  handleAddColumn();
-                  setShowAddColumn(false);
-                }}
-                className="text-blue-500 hover:text-blue-500"
-              >
-                Create
-              </Button>
+            <div>
+              <div className="flex flex-row gap-2">
+                <Input
+                  placeholder="Add watchlist"
+                  value={newColumnName}
+                  onChange={handleInputChange}
+                />
+                <Button
+                  variant={"secondary"}
+                  onClick={() => {
+                    setShowAddColumn(false);
+                    setNewColumnName("");
+                  }}
+                  aria-label="Cancel"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant={"secondary"}
+                  onClick={() => {
+                    handleAddColumn();
+                    setShowAddColumn(false);
+                  }}
+                  className="text-blue-500 hover:text-blue-500"
+                  disabled={newColumnName.trim() === "" || showAddColumnError}
+                  aria-label="Create watchlist"
+                >
+                  Create
+                </Button>
+              </div>
+              {showAddColumnError && (
+                <p className="p-2 text-sm text-red-500">
+                  A watchlist with this name already exists.
+                </p>
+              )}
             </div>
           )}
         </div>
