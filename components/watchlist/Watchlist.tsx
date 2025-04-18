@@ -1,5 +1,5 @@
 "use client";
-import { Children, useRef, useState } from "react";
+import { Children, memo, useCallback, useRef, useState } from "react";
 import { DragDropProvider } from "@dnd-kit/react";
 import { useSortable } from "@dnd-kit/react/sortable";
 import { CollisionPriority } from "@dnd-kit/abstract";
@@ -21,7 +21,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { updateWatchlistOrder } from "@/app/watchlist/actions";
+import {
+  addWatchlistColumn,
+  addWatchlistItems,
+  deleteWatchlistColumn,
+  deleteWatchlistItems,
+  moveWatchlistItem,
+  updateWatchlistOrder,
+} from "@/app/watchlist/actions";
 
 function cloneDeep(object: object) {
   return JSON.parse(JSON.stringify(object));
@@ -29,7 +36,7 @@ function cloneDeep(object: object) {
 
 const DEFAULT_COLUMN = "Holdings";
 
-function Item({
+const Item = memo(function Item({
   id,
   column,
   index,
@@ -48,6 +55,7 @@ function Item({
     id,
     index,
     group: column,
+    data: { column, item: id },
     type: "item",
     accept: ["item"],
     collisionPriority: CollisionPriority.Highest,
@@ -68,53 +76,58 @@ function Item({
       <span className="font-medium">{id}</span>
     </div>
   );
-}
+});
+Item.displayName = "Item";
 
-function Column({
-  children,
-  id,
-  index,
-  title,
-  onRemove,
-}: {
-  children?: React.ReactNode;
-  id: string;
-  index: number;
-  title?: string;
-  onRemove?: () => void;
-}) {
-  const { ref } = useSortable({
+const Column = memo(
+  ({
+    children,
     id,
     index,
-    type: "column",
-    accept: ["column", "item"],
-    collisionPriority: CollisionPriority.High,
-    modifiers: [RestrictToVerticalAxis, RestrictToWindow],
-  });
+    title,
+    onRemove,
+  }: {
+    children?: React.ReactNode;
+    id: string;
+    index: number;
+    title?: string;
+    onRemove?: () => void;
+  }) => {
+    const { ref } = useSortable({
+      id,
+      index,
+      type: "column",
+      accept: ["column", "item"],
+      data: { column: id },
+      collisionPriority: CollisionPriority.High,
+      modifiers: [RestrictToVerticalAxis, RestrictToWindow],
+    });
 
-  return (
-    <div
-      ref={ref}
-      className="bg-secondary flex h-auto min-w-3xs flex-col gap-2 rounded-lg p-2"
-    >
-      <div className="group/card flex min-h-9 flex-row items-center justify-between">
-        <h2 className="text-lg font-bold">{title}</h2>
-        {onRemove && (
-          <Button
-            size={"icon"}
-            variant={"custom"}
-            onClick={onRemove}
-            className="hidden group-hover/card:inline-flex"
-            aria-label="Delete watchlist column"
-          >
-            <X />
-          </Button>
-        )}
+    return (
+      <div
+        ref={ref}
+        className="bg-secondary flex h-auto min-w-3xs flex-col gap-2 rounded-lg p-2"
+      >
+        <div className="group/card flex min-h-9 flex-row items-center justify-between">
+          <h2 className="text-lg font-bold">{title}</h2>
+          {onRemove && (
+            <Button
+              size={"icon"}
+              variant={"custom"}
+              onClick={onRemove}
+              className="hidden group-hover/card:inline-flex"
+              aria-label="Delete watchlist column"
+            >
+              <X />
+            </Button>
+          )}
+        </div>
+        {Children.count(children) > 0 ? children : <Button>Add tickers</Button>}
       </div>
-      {Children.count(children) > 0 ? children : <Button>Add tickers</Button>}
-    </div>
-  );
-}
+    );
+  },
+);
+Column.displayName = "Column";
 
 interface WatchlistProps {
   initialData: Record<string, string[]>; // keyed by watchlist name with list of tickers
@@ -141,7 +154,34 @@ export default function Watchlist({
     {},
   );
 
-  function handleRemoveColumn(column: string) {
+  const fromColumnRef = useRef<string | null>(null);
+
+  const handleAddColumn = useCallback(() => {
+    if (!newColumnName.trim()) return;
+    const add = () => {
+      const column = newColumnName.trim();
+      // Update items state by adding a new column with an empty array
+      setItems((prevItems) => ({ ...prevItems, [column]: [] }));
+      // Append the new column name to the columns state
+      setColumns((prevColumns) => [...prevColumns, column]);
+      setNewColumnName("");
+    };
+
+    addWatchlistColumn({
+      name: newColumnName,
+      position: columns.length,
+    }).catch((error) => {
+      console.error("Error adding watchlist column:", error);
+    });
+
+    if (supportsViewTransition(document)) {
+      document.startViewTransition(() => flushSync(add));
+    } else {
+      add();
+    }
+  }, [columns.length, newColumnName]);
+
+  const handleDeleteColumn = useCallback((column: string) => {
     if (column === DEFAULT_COLUMN) return;
 
     const remove = () => {
@@ -153,115 +193,138 @@ export default function Watchlist({
       setColumns((cols) => cols.filter((col) => col !== column));
     };
 
+    deleteWatchlistColumn(column).catch((error) => {
+      console.error("Error deleting watchlist column:", error);
+    });
+
     if (supportsViewTransition(document)) {
       document.startViewTransition(() => flushSync(remove));
     } else {
       remove();
     }
-  }
+  }, []);
 
-  function handleAddColumn() {
-    if (!newColumnName.trim()) return;
-    const add = () => {
-      const column = newColumnName.trim();
-      // Update items state by adding a new column with an empty array
-      setItems((prevItems) => ({ ...prevItems, [column]: [] }));
-      // Append the new column name to the columns state
-      setColumns((prevColumns) => [...prevColumns, column]);
-      setNewColumnName("");
-    };
-
-    if (supportsViewTransition(document)) {
-      document.startViewTransition(() => flushSync(add));
-    } else {
-      add();
-    }
-  }
-
-  function toggleItemSelection(column: string, item: string) {
+  const toggleItemSelection = useCallback((column: string, item: string) => {
     const key = `${column}#${item}`;
     setSelectedItems((prev) => ({
       ...prev,
       [key]: !prev[key],
     }));
-  }
+  }, []);
 
-  function addItemToColumn(column: string, tickerRecord: TickerRecord) {
-    const add = () => {
-      setItems((prevItems) => {
-        // Normalize ticker strings for a case-insensitive check.
-        const currentTickers = prevItems[column];
-        const alreadyExists = currentTickers
-          .map((t) => t.toLowerCase())
-          .includes(tickerRecord.ticker.toLowerCase());
+  const handleAddItemToColumn = useCallback(
+    (column: string, tickerRecord: TickerRecord) => {
+      const add = () => {
+        setItems((prevItems) => {
+          // Normalize ticker strings for a case-insensitive check.
+          const currentTickers = prevItems[column];
+          const alreadyExists = currentTickers
+            .map((t) => t.toLowerCase())
+            .includes(tickerRecord.ticker.toLowerCase());
 
-        if (alreadyExists) {
-          // Remove the ticker if it exists.
-          return {
-            ...prevItems,
-            [column]: currentTickers.filter(
-              (t) => t.toLowerCase() !== tickerRecord.ticker.toLowerCase(),
-            ),
-          };
-        } else {
-          // Add the ticker if it does not exist.
-          return {
-            ...prevItems,
-            [column]: [...currentTickers, tickerRecord.ticker],
-          };
-        }
-      });
-    };
+          if (alreadyExists) {
+            // Remove the ticker if it exists.
+            return {
+              ...prevItems,
+              [column]: currentTickers.filter(
+                (t) => t.toLowerCase() !== tickerRecord.ticker.toLowerCase(),
+              ),
+            };
+          } else {
+            // Add the ticker if it does not exist.
+            return {
+              ...prevItems,
+              [column]: [...currentTickers, tickerRecord.ticker],
+            };
+          }
+        });
+      };
 
-    if (supportsViewTransition(document)) {
-      document.startViewTransition(() => flushSync(add));
-    } else {
-      add();
+      if (supportsViewTransition(document)) {
+        document.startViewTransition(() => flushSync(add));
+      } else {
+        add();
+      }
+    },
+    [],
+  );
+
+  const handleAddTickerDone = useCallback(async () => {
+    const before = initialData[DEFAULT_COLUMN] ?? [];
+    const after = items[DEFAULT_COLUMN] ?? [];
+    const newOnes = after.filter((t) => !before.includes(t));
+
+    if (newOnes.length > 0) {
+      try {
+        await addWatchlistItems({ [DEFAULT_COLUMN]: newOnes });
+      } catch (e) {
+        console.error("Failed to persist new tickers:", e);
+        // optional: roll back or refetch here
+      }
     }
-  }
+
+    setShowAddTicker(false);
+  }, [items, initialData]);
 
   // Compute the number of checked items across all columns
   const numChecked = Object.values(selectedItems).filter(Boolean).length;
 
-  function deleteItemsFromColumn() {
-    const deleteItems = () => {
-      setItems((prevItems) => {
-        // Filter out checked items from each column
-        const newItems: Record<string, string[]> = { ...prevItems };
-        for (const column in newItems) {
-          newItems[column] = newItems[column].filter(
-            (item) => !selectedItems[`${column}#${item}`],
-          );
+  const handleDeleteItemsFromColumn = useCallback(() => {
+    // group selected keys into { column: [tickers] }
+    const itemsToDelete: Record<string, string[]> = {};
+    for (const key of Object.keys(selectedItems)) {
+      if (!selectedItems[key]) continue;
+      const [column, ticker] = key.split("#");
+      itemsToDelete[column] = itemsToDelete[column] || [];
+      itemsToDelete[column].push(ticker);
+    }
+
+    // optimistically update UI
+    const applyLocal = () => {
+      setItems((prev) => {
+        const next = { ...prev };
+        for (const col in itemsToDelete) {
+          next[col] = next[col].filter((t) => !itemsToDelete[col].includes(t));
         }
-        return newItems;
+        return next;
       });
-      // Clear selections after deletion
       setSelectedItems({});
     };
 
-    if (supportsViewTransition(document)) {
-      document.startViewTransition(() => flushSync(deleteItems));
-    } else {
-      deleteItems();
+    try {
+      if (supportsViewTransition(document)) {
+        document.startViewTransition(() => flushSync(applyLocal));
+      } else {
+        applyLocal();
+      }
+      // call server action
+      deleteWatchlistItems(itemsToDelete);
+    } catch (e) {
+      console.error("Failed to delete watchlist items", e);
+      // optionally refetch or roll back
     }
-  }
+  }, [selectedItems]);
 
-  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const value = event.target.value;
-    setNewColumnName(value);
+  const handleInputChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
+      setNewColumnName(value);
 
-    setShowAddColumnError(
-      value.trim() !== "" &&
-        Object.keys(items).some(
-          (key) => key.toLowerCase() === value.trim().toLowerCase(),
-        ),
-    );
-  }
+      setShowAddColumnError(
+        value.trim() !== "" &&
+          Object.keys(items).some(
+            (key) => key.toLowerCase() === value.trim().toLowerCase(),
+          ),
+      );
+    },
+    [items],
+  );
 
   return (
     <DragDropProvider
-      onDragStart={() => {
+      onDragStart={(event) => {
         snapshot.current = cloneDeep(items);
+        fromColumnRef.current = event.operation.source?.data.column;
       }}
       onDragOver={(event) => {
         const { source } = event.operation;
@@ -273,7 +336,7 @@ export default function Watchlist({
 
         setItems((items) => move(items, event));
       }}
-      onDragEnd={(event) => {
+      onDragEnd={async (event) => {
         if (event.canceled) {
           setItems(snapshot.current);
           return;
@@ -288,6 +351,33 @@ export default function Watchlist({
           updateWatchlistOrder(
             newColumns.map((name, idx) => ({ name, position: idx })),
           );
+        }
+
+        if (source?.type === "item") {
+          const fromColumn = fromColumnRef.current;
+          if (!fromColumn) return;
+          // @ts-expect-error: 'index' property type mismatch due to dnd experimental lib
+          const toColumn = source.sortable.group;
+
+          const ticker = String(source.id);
+          // @ts-expect-error: 'index' property type mismatch due to dnd experimental lib
+          const newItemIndex = source.sortable.index;
+
+          const next = move(items, event);
+          setItems(next);
+
+          try {
+            await moveWatchlistItem({
+              fromColumnName: fromColumn,
+              toColumnName: toColumn,
+              ticker: ticker,
+              newPosition: newItemIndex,
+            });
+          } catch (err) {
+            console.error("Failed to persist move:", err);
+          } finally {
+            fromColumnRef.current = null;
+          }
         }
       }}
     >
@@ -369,7 +459,7 @@ export default function Watchlist({
               <span className="font-medium">{numChecked} selected</span>
               <Button
                 variant={"secondary"}
-                onClick={deleteItemsFromColumn}
+                onClick={handleDeleteItemsFromColumn}
                 className="text-red-500"
                 aria-label="Delete selected items"
               >
@@ -381,9 +471,9 @@ export default function Watchlist({
           {showAddTicker && (
             <Autocomplete
               onSelect={(tickerRecord) =>
-                addItemToColumn(DEFAULT_COLUMN, tickerRecord)
+                handleAddItemToColumn(DEFAULT_COLUMN, tickerRecord)
               }
-              showAddTicker={() => setShowAddTicker(false)}
+              showAddTicker={handleAddTickerDone}
               existingTickers={items[DEFAULT_COLUMN]}
             />
           )}
@@ -439,7 +529,7 @@ export default function Watchlist({
                 title={column}
                 onRemove={
                   column !== DEFAULT_COLUMN
-                    ? () => handleRemoveColumn(column)
+                    ? () => handleDeleteColumn(column)
                     : undefined
                 }
               >

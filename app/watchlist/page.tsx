@@ -8,7 +8,8 @@ export default async function page() {
   const { data, error } = await supabase
     .from("watchlists")
     .select("*, watchlist_items(*)")
-    .order("position", { ascending: true });
+    .order("position", { ascending: true })
+    .order("position", { foreignTable: "watchlist_items", ascending: true });
 
   if (error || !data) {
     console.error("Error fetching watchlist data:", error);
@@ -19,11 +20,12 @@ export default async function page() {
 
   const sortedColumns: string[] = [];
 
-  for (const watchlist of data) {
-    sortedColumns.push(watchlist.name);
-    initialData[watchlist.name] = (watchlist.watchlist_items || []).map(
-      (item) => item.ticker,
-    );
+  for (const wl of data) {
+    const items = wl.watchlist_items || [];
+    // fallback sort in case the supabase order wasn’t applied:
+    items.sort((a, b) => a.position - b.position);
+    initialData[wl.name] = items.map((i) => i.ticker);
+    sortedColumns.push(wl.name);
   }
 
   return (

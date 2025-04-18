@@ -73,7 +73,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      add_and_reindex_watchlist_items: {
+        Args: { p_watchlist_id: number; p_tickers: string[] }
+        Returns: undefined
+      }
+      delete_and_reindex_watchlist_items: {
+        Args: { p_watchlist_id: number; p_tickers: string[] }
+        Returns: undefined
+      }
+      move_watchlist_item: {
+        Args: {
+          p_source_watchlist_id: number
+          p_dest_watchlist_id: number
+          p_ticker: string
+          p_new_position: number
+        }
+        Returns: undefined
+      }
+      reorder_watchlist_items: {
+        Args: { p_watchlist_id: number; p_tickers: string[] }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

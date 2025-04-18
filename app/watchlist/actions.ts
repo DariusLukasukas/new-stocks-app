@@ -89,105 +89,112 @@ export async function updateWatchlistOrder(columns: ColumnOrder[]) {
   return true;
 }
 
-export async function batchAddTickersToWatchlist({
-  watchlistName,
-  tickers,
-}: BatchAddTickersInput) {
+export async function deleteWatchlistItems(
+  itemsToDelete: Record<string, string[]>,
+) {
   const supabase = await createClient();
-
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
 
-  if (!user) {
-    throw new Error("User not authenticated");
-  }
+  // for each list, call the DB function once:
+  for (const [name, tickers] of Object.entries(itemsToDelete)) {
+    if (tickers.length === 0) continue;
 
-  // Retrieve the watchlist ID for the given watchlist name (assumed unique per user).
-  const { data: watchlistData, error: watchlistError } = await supabase
-    .from("watchlists")
-    .select("id")
-    .eq("name", watchlistName)
-    .eq("user_id", user.id)
-    .single();
+    // lookup the watchlist id
+    const { data: wl, error: e1 } = await supabase
+      .from("watchlists")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("name", name)
+      .single();
+    if (e1 || !wl) throw new Error(e1?.message || "List not found");
 
-  if (watchlistError || !watchlistData) {
-    throw new Error(
-      watchlistError ? watchlistError.message : "Watchlist not found",
+    // single RPC call to do both delete + re‑index
+    const { error: rpcError } = await supabase.rpc(
+      "delete_and_reindex_watchlist_items",
+      {
+        p_watchlist_id: wl.id,
+        p_tickers: tickers,
+      },
     );
-  }
-  const watchlistId = watchlistData.id;
-
-  // Optionally, compute the current number of items (for ordering).
-  const { data: currentItems, error: itemsError } = await supabase
-    .from("watchlist_items")
-    .select("id")
-    .eq("watchlist_id", watchlistId);
-
-  if (itemsError) {
-    throw new Error(itemsError.message);
-  }
-  const basePosition = currentItems ? currentItems.length : 0;
-
-  // Prepare all the ticker rows to be inserted.
-  const tickerRows = tickers.map((ticker, index) => ({
-    watchlist_id: watchlistId,
-    ticker,
-    position: basePosition + index,
-  }));
-
-  const { error } = await supabase.from("watchlist_items").insert(tickerRows);
-  if (error) {
-    console.error("Error adding tickers to watchlist:", error);
-    throw new Error(error.message);
+    if (rpcError) throw new Error(rpcError.message);
   }
 
   return true;
 }
 
-interface batchAddTickersToWatchlistInput {
-  watchlistName: string;
-  tickers: string[];
-}
-
-export async function batchDeleteTickersFromWatchlist({
-  watchlistName,
-  tickers,
-}: batchAddTickersToWatchlistInput) {
+export async function addWatchlistItems(
+  itemsToAdd: Record<string, string[]>,
+): Promise<boolean> {
   const supabase = await createClient();
-
   const {
     data: { user },
+    error: authErr,
   } = await supabase.auth.getUser();
+  if (authErr || !user) throw new Error("Not authenticated");
 
-  if (!user) {
-    throw new Error("User not authenticated");
-  }
+  for (const [name, tickers] of Object.entries(itemsToAdd)) {
+    if (tickers.length === 0) continue;
+    // look up id
+    const { data: wl, error: wlErr } = await supabase
+      .from("watchlists")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("name", name)
+      .single();
+    if (wlErr || !wl) throw new Error(wlErr?.message || "List not found");
 
-  const { data: watchlistData, error: watchlistError } = await supabase
-    .from("watchlists")
-    .select("id")
-    .eq("name", watchlistName)
-    .eq("user_id", user.id)
-    .single();
-
-  if (watchlistError || !watchlistData) {
-    throw new Error(
-      watchlistError ? watchlistError.message : "Watchlist not found",
+    // single RPC does insert + (optional) reindex
+    const { error: rpcErr } = await supabase.rpc(
+      "add_and_reindex_watchlist_items",
+      {
+        p_watchlist_id: wl.id,
+        p_tickers: tickers,
+      },
     );
+    if (rpcErr) throw new Error(rpcErr.message);
   }
 
-  const watchlistId = watchlistData.id;
-  const { error } = await supabase
-    .from("watchlist_items")
-    .delete()
-    .in("ticker", tickers)
-    .eq("watchlist_id", watchlistId);
+  return true;
+}
 
-  if (error) {
-    console.error("Error deleting tickers from watchlist:", error);
-    throw new Error(error.message);
+export async function moveWatchlistItem(params: {
+  fromColumnName: string;
+  toColumnName: string;
+  ticker: string;
+  newPosition: number;
+}): Promise<boolean> {
+  const { fromColumnName, toColumnName, ticker, newPosition } = params;
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: authErr,
+  } = await supabase.auth.getUser();
+  if (authErr || !user) throw new Error("Not authenticated");
+
+  // helper to look up a watchlist ID by name
+  async function getId(name: string) {
+    const { data: wl, error } = await supabase
+      .from("watchlists")
+      .select("id")
+      .eq("user_id", user!.id)
+      .eq("name", name)
+      .single();
+    if (error || !wl) throw new Error(error?.message || "List not found");
+    return wl.id;
   }
 
+  const fromId = await getId(fromColumnName);
+  const toId = await getId(toColumnName);
+
+  const { error: rpcErr } = await supabase.rpc("move_watchlist_item", {
+    p_source_watchlist_id: fromId,
+    p_dest_watchlist_id: toId,
+    p_ticker: ticker,
+    p_new_position: newPosition,
+  });
+  if (rpcErr) throw new Error(rpcErr.message);
   return true;
 }
