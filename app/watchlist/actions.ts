@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { revalidatePath } from "next/cache";
 
 export async function addWatchlistColumn({
   name,
@@ -157,6 +158,7 @@ export async function addWatchlistItems(
     if (rpcErr) throw new Error(rpcErr.message);
   }
 
+  revalidatePath("/watchlist");
   return true;
 }
 

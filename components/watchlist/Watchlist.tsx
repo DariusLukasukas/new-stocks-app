@@ -29,12 +29,26 @@ import {
   moveWatchlistItem,
   updateWatchlistOrder,
 } from "@/app/watchlist/actions";
+import TickerImage from "../stock/TickerImage";
 
 function cloneDeep(object: object) {
   return JSON.parse(JSON.stringify(object));
 }
 
 const DEFAULT_COLUMN = "Holdings";
+
+const currencyFmt = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  signDisplay: "always",
+  minimumFractionDigits: 2,
+});
+
+const percentFmt = new Intl.NumberFormat("en-US", {
+  style: "percent",
+  signDisplay: "always",
+  minimumFractionDigits: 2,
+});
 
 const Item = memo(function Item({
   id,
@@ -43,6 +57,7 @@ const Item = memo(function Item({
   showEditColumn,
   checked,
   onToggleCheck,
+  stock: { price, change, changePercent },
 }: {
   id: string;
   column: string;
@@ -50,6 +65,11 @@ const Item = memo(function Item({
   showEditColumn?: boolean;
   checked?: boolean;
   onToggleCheck?: (column: string, item: string) => void;
+  stock: {
+    price: number | null;
+    change: number | null;
+    changePercent: number | null;
+  };
 }) {
   const { ref } = useSortable({
     id,
@@ -64,16 +84,47 @@ const Item = memo(function Item({
   return (
     <div
       ref={ref}
-      className="bg-card flex flex-row items-center gap-2 rounded-lg p-2"
+      className="bg-card flex flex-row items-center justify-between rounded-lg p-2"
     >
-      {showEditColumn && (
-        <Checkbox
-          aria-label="Select ticker to delete"
-          checked={checked}
-          onCheckedChange={() => onToggleCheck && onToggleCheck(column, id)}
-        />
-      )}
-      <span className="font-medium">{id}</span>
+      <div className="flex min-w-28 flex-row items-center gap-2">
+        {showEditColumn && (
+          <Checkbox
+            aria-label="Select ticker to delete"
+            checked={checked}
+            onCheckedChange={() => onToggleCheck && onToggleCheck(column, id)}
+          />
+        )}
+        <div className="inline-flex size-5 items-center justify-center rounded bg-black p-1">
+          <TickerImage ticker={id} />
+        </div>
+        <p className="font-semibold">{id}</p>
+      </div>
+
+      <p className="min-w-16 text-right font-medium">
+        {price != null ? `$${price.toFixed(2)}` : "–"}
+      </p>
+
+      <div className="flex flex-row items-center gap-2">
+        <p
+          className={cn(
+            "min-w-16 text-center",
+            change != null && change >= 0 ? "text-green-600" : "text-red-600",
+          )}
+        >
+          {change != null ? currencyFmt.format(change) : "–"}
+        </p>
+
+        <p
+          className={cn(
+            "min-w-20 rounded-lg px-2 py-0.5 text-center",
+            changePercent != null && changePercent >= 0
+              ? "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300"
+              : "bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300",
+          )}
+        >
+          {changePercent != null ? percentFmt.format(changePercent / 100) : "–"}
+        </p>
+      </div>
     </div>
   );
 });
@@ -129,14 +180,22 @@ const Column = memo(
 );
 Column.displayName = "Column";
 
+interface StockData {
+  price: number | null;
+  change: number | null;
+  changePercent: number | null;
+}
+
 interface WatchlistProps {
   initialData: Record<string, string[]>; // keyed by watchlist name with list of tickers
   initialColumns: string[]; // list of column names in desired order
+  stockData: Record<string, StockData>;
 }
 
 export default function Watchlist({
   initialData,
   initialColumns,
+  stockData,
 }: WatchlistProps) {
   const [items, setItems] = useState<Record<string, string[]>>(initialData);
   const [columns, setColumns] = useState(initialColumns);
@@ -395,6 +454,7 @@ export default function Watchlist({
                       variant={"outline"}
                       onClick={() => {
                         setShowAddColumn(false);
+                        setShowEditColumn(false);
                         setShowAddTicker((prev) => !prev);
                       }}
                       aria-label="Add stocks"
@@ -412,6 +472,8 @@ export default function Watchlist({
                       size={"icon"}
                       variant={"outline"}
                       onClick={() => {
+                        setShowAddColumnError(false);
+                        setShowEditColumn(false);
                         setShowAddTicker(false);
                         setShowAddColumn((prev) => !prev);
                       }}
@@ -431,6 +493,7 @@ export default function Watchlist({
                       variant={"outline"}
                       onClick={() => {
                         setShowAddTicker(false);
+                        setSelectedItems({});
                         setShowEditColumn((prev) => !prev);
                         setShowAddColumn(false);
                         setNewColumnName("");
@@ -457,14 +520,26 @@ export default function Watchlist({
           {showEditColumn && numChecked > 0 && (
             <div className="flex flex-row items-center justify-between px-2">
               <span className="font-medium">{numChecked} selected</span>
-              <Button
-                variant={"secondary"}
-                onClick={handleDeleteItemsFromColumn}
-                className="text-red-500"
-                aria-label="Delete selected items"
-              >
-                Delete
-              </Button>
+              <div>
+                <Button
+                  variant={"secondary"}
+                  onClick={() => {
+                    setShowEditColumn(false);
+                    setSelectedItems({});
+                  }}
+                  aria-label="Cancel"
+                >
+                  Cancel
+                </Button>{" "}
+                <Button
+                  variant={"secondary"}
+                  onClick={handleDeleteItemsFromColumn}
+                  className="text-red-500"
+                  aria-label="Delete selected items"
+                >
+                  Delete
+                </Button>
+              </div>
             </div>
           )}
 
@@ -533,17 +608,22 @@ export default function Watchlist({
                     : undefined
                 }
               >
-                {items[column]?.map((item, index) => {
-                  const key = `${column}#${item}`;
+                {items[column]?.map((ticker, index) => {
+                  const stock = stockData[ticker] ?? {
+                    price: null,
+                    change: null,
+                    changePercent: null,
+                  };
                   return (
                     <Item
-                      key={item}
-                      id={item}
+                      key={ticker}
+                      id={ticker}
                       column={column}
                       index={index}
                       showEditColumn={showEditColumn}
-                      checked={!!selectedItems[key]}
+                      checked={!!selectedItems[`${column}#${ticker}`]}
                       onToggleCheck={toggleItemSelection}
+                      stock={stock}
                     />
                   );
                 })}
