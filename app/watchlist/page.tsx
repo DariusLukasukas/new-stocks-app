@@ -3,13 +3,22 @@ import Watchlist from "@/components/watchlist/Watchlist";
 import { createClient } from "@/utils/supabase/server";
 import yahooFinance from "yahoo-finance2";
 
+yahooFinance.suppressNotices(["yahooSurvey"]);
+
+yahooFinance.setGlobalConfig({
+  logger: {
+    debug: () => {},
+    info: () => {},
+    warn: () => {},
+    error: () => {},
+  },
+});
+
 type StockData = {
   price: number | null;
   change: number | null;
   changePercent: number | null;
 };
-
-yahooFinance.suppressNotices(["yahooSurvey"]);
 
 async function getStockData(
   tickers: string[],

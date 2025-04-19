@@ -84,7 +84,7 @@ const Item = memo(function Item({
   return (
     <div
       ref={ref}
-      className="bg-card flex flex-row items-center justify-between rounded-lg p-2"
+      className="bg-card flex flex-row items-center justify-between rounded-lg p-2 text-sm"
     >
       <div className="flex min-w-28 flex-row items-center gap-2">
         {showEditColumn && (
@@ -184,7 +184,7 @@ interface StockData {
 
 interface WatchlistProps {
   initialData: Record<string, string[]>; // keyed by watchlist name with list of tickers
-  initialColumns: string[]; // list of column names in desired order
+  initialColumns: string[]; // ordered list of watchlist names
   stockData: Record<string, StockData>;
 }
 
@@ -572,7 +572,7 @@ export default function Watchlist({
                 </Button>
               </div>
               {showAddColumnError && (
-                <p className="p-2 text-sm text-red-500">
+                <p className="p-2 text-sm font-medium text-red-500">
                   A watchlist with this name already exists.
                 </p>
               )}
