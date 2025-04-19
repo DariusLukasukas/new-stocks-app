@@ -99,11 +99,9 @@ const Item = memo(function Item({
         </div>
         <p className="font-semibold">{id}</p>
       </div>
-
       <p className="min-w-16 text-right font-medium">
         {price != null ? `$${price.toFixed(2)}` : "–"}
       </p>
-
       <div className="flex flex-row items-center gap-2">
         <p
           className={cn(
@@ -113,7 +111,6 @@ const Item = memo(function Item({
         >
           {change != null ? currencyFmt.format(change) : "–"}
         </p>
-
         <p
           className={cn(
             "min-w-20 rounded-lg px-2 py-0.5 text-center",
@@ -153,7 +150,6 @@ const Column = memo(
       collisionPriority: CollisionPriority.High,
       modifiers: [RestrictToVerticalAxis, RestrictToWindow],
     });
-
     return (
       <div
         ref={ref}
@@ -337,8 +333,6 @@ export default function Watchlist({
       itemsToDelete[column] = itemsToDelete[column] || [];
       itemsToDelete[column].push(ticker);
     }
-
-    // optimistically update UI
     const applyLocal = () => {
       setItems((prev) => {
         const next = { ...prev };
@@ -349,7 +343,6 @@ export default function Watchlist({
       });
       setSelectedItems({});
     };
-
     try {
       if (supportsViewTransition(document)) {
         document.startViewTransition(() => flushSync(applyLocal));
@@ -392,7 +385,6 @@ export default function Watchlist({
           // We can rely on optimistic sorting for columns
           return;
         }
-
         setItems((items) => move(items, event));
       }}
       onDragEnd={async (event) => {
@@ -400,9 +392,7 @@ export default function Watchlist({
           setItems(snapshot.current);
           return;
         }
-
         const { source } = event.operation;
-
         if (source?.type === "column") {
           const newColumns = move(columns, event);
           setColumns(newColumns);
@@ -411,20 +401,16 @@ export default function Watchlist({
             newColumns.map((name, idx) => ({ name, position: idx })),
           );
         }
-
         if (source?.type === "item") {
           const fromColumn = fromColumnRef.current;
           if (!fromColumn) return;
           // @ts-expect-error: 'index' property type mismatch due to dnd experimental lib
           const toColumn = source.sortable.group;
-
           const ticker = String(source.id);
           // @ts-expect-error: 'index' property type mismatch due to dnd experimental lib
           const newItemIndex = source.sortable.index;
-
           const next = move(items, event);
           setItems(next);
-
           try {
             await moveWatchlistItem({
               fromColumnName: fromColumn,

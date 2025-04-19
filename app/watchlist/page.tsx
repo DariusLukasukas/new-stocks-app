@@ -9,6 +9,8 @@ type StockData = {
   changePercent: number | null;
 };
 
+yahooFinance.suppressNotices(["yahooSurvey"]);
+
 async function getStockData(
   tickers: string[],
 ): Promise<Record<string, StockData>> {
