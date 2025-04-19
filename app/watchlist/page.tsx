@@ -87,7 +87,7 @@ export default async function page() {
 
   return (
     <Container variant={"fullMobileConstrainedPadded"}>
-      <div className="mx-auto max-w-lg">
+      <div className="mx-auto max-w-md py-2">
         <Watchlist
           initialData={initialData}
           initialColumns={sortedColumns}

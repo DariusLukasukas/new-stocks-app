@@ -105,7 +105,7 @@ const Item = memo(function Item({
       <div className="flex flex-row items-center gap-2">
         <p
           className={cn(
-            "min-w-16 text-center",
+            "min-w-16 text-center font-medium",
             change != null && change >= 0 ? "text-green-600" : "text-red-600",
           )}
         >
@@ -113,7 +113,7 @@ const Item = memo(function Item({
         </p>
         <p
           className={cn(
-            "min-w-20 rounded-lg px-2 py-0.5 text-center",
+            "min-w-20 rounded-lg px-2 py-0.5 text-center font-medium",
             changePercent != null && changePercent >= 0
               ? "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300"
               : "bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300",
@@ -156,7 +156,7 @@ const Column = memo(
         className="bg-secondary flex h-auto min-w-3xs flex-col gap-2 rounded-lg p-2"
       >
         <div className="group/card flex min-h-9 flex-row items-center justify-between">
-          <h2 className="text-lg font-bold">{title}</h2>
+          <h2 className="font-bold">{title}</h2>
           {onRemove && (
             <Button
               size={"icon"}
@@ -430,7 +430,7 @@ export default function Watchlist({
         {/* Watchlist header */}
         {!showAddTicker && (
           <div className="flex flex-row items-center justify-between px-2">
-            <h1 className="text-2xl font-bold">Watchlist</h1>
+            <h1 className="text-lg font-bold">Watchlist</h1>
             <div className="flex flex-row gap-2">
               <TooltipProvider>
                 <Tooltip>

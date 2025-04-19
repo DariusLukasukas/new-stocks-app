@@ -150,7 +150,7 @@ export default function Autocomplete({
           onValueChange={(val) => setSearchTerm(val)}
           showSearchIcon={false}
           placeholder="Search tickers..."
-          className="text-base caret-blue-500"
+          className="text-lg caret-blue-500"
           wrapperClassName="border-none px-2"
         />
         <Button
