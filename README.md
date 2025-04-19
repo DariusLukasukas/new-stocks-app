@@ -13,9 +13,9 @@ This application is designed to help you quickly search for U.S. publicly traded
 
 ## Project Roadmap
 - [X] Autocomplete
-- [ ] User authentication
+- [X] Stock watchlist
+- [X] User authentication
 - [ ] AI summary of stocks
-- [ ] Stock watchlist
 - [ ] Notes
 
 ## Data Sources
