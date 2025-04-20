@@ -12,7 +12,6 @@ import PriceTarget from "@/components/stock/PriceTarget";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Earnings from "@/components/stock/Earnings";
 import RevenueEarnings from "@/components/stock/RevenueEarnings";
-import { Container } from "@/components/ui/container";
 
 async function getStockChartData(ticker: string, range: string = "1w") {
   const queryOptions = {
@@ -48,7 +47,7 @@ export default async function Page({
   const [stock, chart] = await Promise.all([stockData, chartData]);
 
   return (
-    <Container variant={"fullMobileConstrainedPadded"}>
+    <>
       <div className="flex flex-row items-center justify-between py-4">
         <div className="flex flex-row items-center space-x-2">
           <GoBack />
@@ -135,6 +134,6 @@ export default async function Page({
           <Earnings ticker={ticker} className="border-none" />
         </CardContent>
       </Card>
-    </Container>
+    </>
   );
 }

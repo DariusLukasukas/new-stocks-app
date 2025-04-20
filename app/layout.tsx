@@ -4,6 +4,7 @@ import "./globals.css";
 import Dock from "@/components/dock/Dock";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { Autocomplete } from "@/components/search/Autocomplete";
+import { Container } from "@/components/ui/container";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +37,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <main>{children}</main>
+          <Container variant={"fullMobileConstrainedPadded"}>
+            {children}
+          </Container>
           <Dock />
           <Autocomplete />
         </ThemeProvider>
