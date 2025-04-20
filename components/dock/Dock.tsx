@@ -40,7 +40,7 @@ const DATA: DockItem[] = [
     label: "Watchlist",
     href: "/watchlist",
     icon: <BookMarked />,
-    disabled: true,
+    disabled: false,
   },
   {
     label: "Notes",

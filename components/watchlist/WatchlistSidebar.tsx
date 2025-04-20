@@ -1,8 +1,8 @@
-import { Container } from "@/components/ui/container";
-import { getStockData, getWatchlists } from "@/components/watchlist/actions";
-import Watchlist from "@/components/watchlist/Watchlist";
+import { getStockData, getWatchlists } from "./actions";
+import Watchlist from "./Watchlist";
+import WatchlistSidebarButton from "./WatchlistSidebarButton";
 
-export default async function page() {
+export default async function WatchlistSidebar() {
   const watchlists = await getWatchlists();
 
   const initialData: Record<string, string[]> = {};
@@ -22,14 +22,12 @@ export default async function page() {
   const stockData = await getStockData(allTickers);
 
   return (
-    <Container variant={"fullMobileConstrainedPadded"} className="py-2">
-      <div className="mx-auto w-full max-w-lg">
-        <Watchlist
-          initialData={initialData}
-          initialColumns={sortedColumns}
-          stockData={stockData}
-        />
-      </div>
-    </Container>
+    <WatchlistSidebarButton>
+      <Watchlist
+        initialData={initialData}
+        initialColumns={sortedColumns}
+        stockData={stockData}
+      />
+    </WatchlistSidebarButton>
   );
 }

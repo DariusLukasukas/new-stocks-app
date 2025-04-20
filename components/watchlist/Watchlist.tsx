@@ -84,7 +84,7 @@ const Item = memo(function Item({
   return (
     <div
       ref={ref}
-      className="bg-card flex flex-row items-center justify-between rounded-lg p-2 text-sm"
+      className="bg-card flex flex-row items-center justify-between rounded-lg px-2 py-1.5 text-sm"
     >
       <div className="flex min-w-28 flex-row items-center gap-2">
         {showEditColumn && (
@@ -102,26 +102,24 @@ const Item = memo(function Item({
       <p className="min-w-16 text-right font-medium">
         {price != null ? `$${price.toFixed(2)}` : "–"}
       </p>
-      <div className="flex flex-row items-center gap-2">
-        <p
-          className={cn(
-            "min-w-16 text-center font-medium",
-            change != null && change >= 0 ? "text-green-600" : "text-red-600",
-          )}
-        >
-          {change != null ? currencyFmt.format(change) : "–"}
-        </p>
-        <p
-          className={cn(
-            "min-w-20 rounded-lg px-2 py-0.5 text-center font-medium",
-            changePercent != null && changePercent >= 0
-              ? "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300"
-              : "bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300",
-          )}
-        >
-          {changePercent != null ? percentFmt.format(changePercent / 100) : "–"}
-        </p>
-      </div>
+      <p
+        className={cn(
+          "min-w-16 text-center font-medium",
+          change != null && change >= 0 ? "text-green-600" : "text-red-600",
+        )}
+      >
+        {change != null ? currencyFmt.format(change) : "–"}
+      </p>
+      <p
+        className={cn(
+          "min-w-20 rounded-lg px-2 py-0.5 text-center font-medium",
+          changePercent != null && changePercent >= 0
+            ? "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300"
+            : "bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300",
+        )}
+      >
+        {changePercent != null ? percentFmt.format(changePercent / 100) : "–"}
+      </p>
     </div>
   );
 });
@@ -153,7 +151,7 @@ const Column = memo(
     return (
       <div
         ref={ref}
-        className="bg-secondary flex h-auto min-w-3xs flex-col gap-2 rounded-lg p-2"
+        className="bg-secondary dark:bg-background flex h-auto min-w-3xs flex-col gap-2 rounded-lg p-2"
       >
         <div className="group/card flex min-h-9 flex-row items-center justify-between">
           <h2 className="font-bold">{title}</h2>
@@ -169,7 +167,11 @@ const Column = memo(
             </Button>
           )}
         </div>
-        {Children.count(children) > 0 ? children : <Button>Add tickers</Button>}
+        {Children.count(children) > 0 ? (
+          children
+        ) : (
+          <Button size={"sm"}>Add tickers</Button>
+        )}
       </div>
     );
   },
@@ -426,7 +428,7 @@ export default function Watchlist({
         }
       }}
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex w-full flex-col gap-4">
         {/* Watchlist header */}
         {!showAddTicker && (
           <div className="flex flex-row items-center justify-between px-2">
@@ -438,12 +440,13 @@ export default function Watchlist({
                     <Button
                       size={"icon"}
                       variant={"outline"}
+                      aria-label="Add stocks"
+                      tabIndex={0}
                       onClick={() => {
                         setShowAddColumn(false);
                         setShowEditColumn(false);
                         setShowAddTicker((prev) => !prev);
                       }}
-                      aria-label="Add stocks"
                     >
                       <Plus />
                     </Button>
@@ -457,13 +460,14 @@ export default function Watchlist({
                     <Button
                       size={"icon"}
                       variant={"outline"}
+                      aria-label="Add watchlist"
+                      tabIndex={0}
                       onClick={() => {
                         setShowAddColumnError(false);
                         setShowEditColumn(false);
                         setShowAddTicker(false);
                         setShowAddColumn((prev) => !prev);
                       }}
-                      aria-label="Add watchlist"
                     >
                       <CopyPlus />
                     </Button>
@@ -477,6 +481,8 @@ export default function Watchlist({
                     <Button
                       size={"icon"}
                       variant={"outline"}
+                      aria-label="Edit watchlist"
+                      tabIndex={0}
                       onClick={() => {
                         setShowAddTicker(false);
                         setSelectedItems({});
@@ -484,7 +490,6 @@ export default function Watchlist({
                         setShowAddColumn(false);
                         setNewColumnName("");
                       }}
-                      aria-label="Edit watchlist"
                       className={cn(
                         showEditColumn &&
                           "border-none bg-blue-500/20 text-blue-500 hover:bg-blue-500/20 hover:text-blue-500",
@@ -506,22 +511,27 @@ export default function Watchlist({
           {showEditColumn && numChecked > 0 && (
             <div className="flex flex-row items-center justify-between px-2">
               <span className="font-medium">{numChecked} selected</span>
-              <div>
+              <div className="flex flex-row gap-2">
                 <Button
                   variant={"secondary"}
+                  size={"sm"}
+                  aria-label="Cancel"
+                  tabIndex={0}
                   onClick={() => {
                     setShowEditColumn(false);
                     setSelectedItems({});
                   }}
-                  aria-label="Cancel"
                 >
                   Cancel
-                </Button>{" "}
+                </Button>
                 <Button
                   variant={"secondary"}
+                  size={"sm"}
+                  aria-label="Delete selected items"
+                  tabIndex={0}
+                  disabled={numChecked === 0}
                   onClick={handleDeleteItemsFromColumn}
                   className="text-red-500"
-                  aria-label="Delete selected items"
                 >
                   Delete
                 </Button>
@@ -550,23 +560,27 @@ export default function Watchlist({
                 />
                 <Button
                   variant={"secondary"}
+                  size={"sm"}
+                  aria-label="Cancel"
+                  tabIndex={0}
                   onClick={() => {
                     setShowAddColumn(false);
                     setNewColumnName("");
                   }}
-                  aria-label="Cancel"
                 >
                   Cancel
                 </Button>
                 <Button
                   variant={"secondary"}
+                  size={"sm"}
+                  aria-label="Create watchlist"
+                  tabIndex={0}
+                  disabled={newColumnName.trim() === "" || showAddColumnError}
                   onClick={() => {
                     handleAddColumn();
                     setShowAddColumn(false);
                   }}
                   className="text-blue-500 hover:text-blue-500"
-                  disabled={newColumnName.trim() === "" || showAddColumnError}
-                  aria-label="Create watchlist"
                 >
                   Create
                 </Button>

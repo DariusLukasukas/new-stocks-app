@@ -4,7 +4,6 @@ import StockAreaChart from "@/components/charts/StockAreaChart";
 import PriceLabel from "@/components/stock/PriceLabel";
 import GoBack from "@/components/ui/go-back";
 import { Bookmark, Moon, Sparkles } from "lucide-react";
-import Widget from "@/components/stock/Widget";
 import KPIs from "@/components/stock/KPIs";
 import { Button } from "@/components/ui/button";
 import TickerImage from "@/components/stock/TickerImage";

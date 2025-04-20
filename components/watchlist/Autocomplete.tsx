@@ -143,7 +143,7 @@ export default function Autocomplete({
   }, [debouncedSearchTerm]);
 
   return (
-    <Command shouldFilter={false} className="md:min-w-[450px]">
+    <Command shouldFilter={false} className="md:max-w-md">
       <div className="flex w-full flex-row gap-2">
         <CommandInput
           value={searchTerm}
@@ -181,7 +181,6 @@ export default function Autocomplete({
                   onSelect={() => {
                     onSelect(item);
                   }}
-                  className="p-2"
                 >
                   <span className="w-16 min-w-fit font-semibold">
                     {item.ticker}
