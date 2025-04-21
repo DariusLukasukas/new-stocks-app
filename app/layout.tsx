@@ -37,9 +37,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Container variant={"fullMobileConstrainedPadded"}>
-            {children}
-          </Container>
+          <Container>{children}</Container>
           <Dock />
           <Autocomplete />
         </ThemeProvider>

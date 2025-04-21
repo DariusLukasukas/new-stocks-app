@@ -1,5 +1,3 @@
-import { getInterval, getPeriod1 } from "@/lib/chartUtils";
-import yahooFinance from "yahoo-finance2";
 import StockAreaChart from "@/components/charts/StockAreaChart";
 import PriceLabel from "@/components/stock/PriceLabel";
 import GoBack from "@/components/ui/go-back";
@@ -12,21 +10,7 @@ import PriceTarget from "@/components/stock/PriceTarget";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Earnings from "@/components/stock/Earnings";
 import RevenueEarnings from "@/components/stock/RevenueEarnings";
-
-async function getStockChartData(ticker: string, range: string = "1w") {
-  const queryOptions = {
-    period1: getPeriod1(range),
-    period2: new Date().getTime(),
-    interval: getInterval(range) as DEFAULT_INTERVALS,
-  };
-  const result = await yahooFinance.chart(ticker, queryOptions);
-  return result;
-}
-
-async function getStockData(ticker: string) {
-  const result = await yahooFinance.quote(ticker);
-  return result;
-}
+import { getStockChartData, getStockData } from "./actions";
 
 export type ChartData = Awaited<ReturnType<typeof getStockChartData>>;
 export type DEFAULT_INTERVALS = "1m" | "15m" | "30m" | "60m" | "1d";
@@ -43,20 +27,18 @@ export default async function Page({
 
   const chartData = await getStockChartData(ticker, range as string);
   const stockData = await getStockData(ticker);
-
   const [stock, chart] = await Promise.all([stockData, chartData]);
 
   return (
     <>
-      <div className="flex flex-row items-center justify-between py-4">
-        <div className="flex flex-row items-center space-x-2">
+      <div className="flex flex-row items-center justify-between">
+        <div className="flex flex-row items-center gap-2">
           <GoBack />
-
-          <div className="inline-flex size-10 items-center justify-center rounded-md border bg-black p-1">
+          <div className="inline-flex size-10 items-center justify-center rounded-md bg-black p-1 dark:border">
             <TickerImage ticker={ticker} />
           </div>
 
-          <div className="leading-none">
+          <div className="flex h-10 flex-col justify-between leading-none">
             <div className="font-bold">{stock.symbol}</div>
             <div className="text-muted-foreground font-medium">
               {stock.longName}
@@ -65,7 +47,7 @@ export default async function Page({
         </div>
 
         <div className="inline-flex gap-2">
-          <Button variant="secondary">
+          <Button size={"sm"} variant="secondary">
             <Sparkles />
             AI Insights
           </Button>
@@ -75,38 +57,29 @@ export default async function Page({
         </div>
       </div>
 
-      <div className="flex gap-4">
-        <div className="flex-1">
-          <div className="flex flex-row items-center justify-between py-10">
-            <div className="flex gap-2">
-              <PriceLabel
-                label="At close"
-                price={stock.regularMarketPrice}
-                change={stock.regularMarketChange}
-                changePercent={stock.regularMarketChangePercent}
+      <div className="flex flex-col">
+        <div className="flex flex-row gap-4 py-8">
+          <PriceLabel
+            label="At close"
+            price={stock.regularMarketPrice}
+            change={stock.regularMarketChange}
+            changePercent={stock.regularMarketChangePercent}
+          />
+          <PriceLabel
+            label="After hours"
+            icon={
+              <Moon
+                size={12}
+                className="fill-muted-foreground stroke-muted-foreground"
               />
-              <PriceLabel
-                label="After hours"
-                icon={
-                  <Moon
-                    size={12}
-                    className="fill-muted-foreground stroke-muted-foreground"
-                  />
-                }
-                price={stock.postMarketPrice}
-                change={stock.postMarketChange}
-                changePercent={stock.postMarketChangePercent}
-              />
-            </div>
-            <div className="hidden place-self-end md:block">
-              <div className="text-muted-foreground w-fit rounded-md border px-1.5 py-0.5 font-mono text-sm">
-                {stock.fullExchangeName}·{stock.currency}
-              </div>
-            </div>
-          </div>
-
-          <StockAreaChart data={chart} />
+            }
+            price={stock.postMarketPrice}
+            change={stock.postMarketChange}
+            changePercent={stock.postMarketChangePercent}
+          />
         </div>
+
+        <StockAreaChart data={chart} />
       </div>
 
       <div className="py-10">

@@ -39,18 +39,18 @@ export default function PriceLabel({
 
   return (
     <div>
-      <div className="text-muted-foreground flex items-center font-medium">
+      <div className="text-muted-foreground flex items-center font-semibold">
         {label}
         {icon && <span className="ml-1">{icon}</span>}
       </div>
       <div className="space-x-2">
-        <span className="text-lg font-bold lg:text-3xl">
+        <span className="text-lg font-bold md:text-xl">
           {dollars}
           <span className="text-muted-foreground">.{decimals}</span>
         </span>
         <span
           className={cn(
-            "mr-1 text-lg font-semibold lg:text-xl",
+            "text-lg font-semibold md:text-xl",
             change > 0 ? "text-green-500" : "text-red-500",
           )}
         >
@@ -59,7 +59,7 @@ export default function PriceLabel({
         </span>
         <span
           className={cn(
-            "text-lg font-semibold lg:text-xl",
+            "text-lg font-semibold md:text-xl",
             changePercent > 0 ? "text-green-500" : "text-red-500",
           )}
         >

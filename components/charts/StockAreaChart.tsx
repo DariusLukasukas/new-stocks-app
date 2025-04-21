@@ -268,7 +268,7 @@ export default function StockAreaChart({ data }: ChartProps) {
               type="monotone"
               dataKey="close"
               stroke="var(--color-primary)"
-              strokeWidth={1.5}
+              strokeWidth={2}
               fillOpacity={1}
               fill="url(#colorHigh)"
             />

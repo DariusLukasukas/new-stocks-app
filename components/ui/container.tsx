@@ -5,11 +5,11 @@ import { cn } from "@/lib/utils";
 const containerVariants = cva("mx-auto px-4 sm:px-6 lg:px-8", {
   variants: {
     variant: {
-      fullMobileConstrainedPadded: "max-w-7xl sm:px-6 lg:px-8 py-2",
+      fullMobileConstrainedPadded: "max-w-7xl sm:px-6 lg:px-8 py-1",
       constrainedPadded: "max-w-7xl px-4 sm:px-6 lg:px-8",
       fullMobileBreakpointPadded: "container mx-auto sm:px-6 lg:px-8",
       breakpointPadded: "container mx-auto px-4 sm:px-6 lg:px-8",
-      narrowConstrainedPadded: "max-w-7xl px-4 sm:px-6 lg:px-8 max-w-6xl",
+      narrowConstrainedPadded: "px-4 sm:px-6 lg:px-8 max-w-6xl",
     },
   },
   defaultVariants: {
