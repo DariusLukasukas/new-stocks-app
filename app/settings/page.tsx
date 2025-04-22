@@ -16,7 +16,7 @@ export default async function page() {
   return (
     <Container variant={"fullMobileConstrainedPadded"}>
       <div className="mx-auto max-w-lg">
-        <Card className="bg-secondary w-full border-none shadow-none">
+        <Card className="bg-secondary dark:bg-secondary/50 w-full border-none shadow-none">
           <CardHeader>
             <CardTitle className="text-xl">Settings</CardTitle>
           </CardHeader>

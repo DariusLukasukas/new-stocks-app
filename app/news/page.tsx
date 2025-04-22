@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GetGeneralNews, topNews } from "./actions";
+import Link from "next/link";
 
 function formatDateTime(unixSec: number) {
   return new Intl.DateTimeFormat("en-US", {
@@ -44,25 +45,38 @@ export default async function Page({
 
   return (
     <div className="flex flex-col gap-8">
-      <h2 className="text-xl font-bold">{"What's happening"}</h2>
+      <div className="py-4">
+        <h2 className="text-xl font-bold">{"What's happening"}</h2>
+        <p className="text-muted-foreground text-sm font-medium">
+          {"We've gathered the latest market news for you."}
+        </p>
+      </div>
 
-      <div className="col-span-2 mb-24 flex flex-col gap-8">
+      <div className="col-span-2 mb-24 flex flex-col gap-8 px-1">
         {Object.entries(grouped).map(([bucket, items]) => (
           <Card
             key={bucket}
-            className="bg-secondary dark:bg-secondary/50 rounded-3xl border-none shadow-none"
+            className="bg-secondary dark:bg-secondary/50 overflow-visible rounded-3xl border-none shadow-none"
           >
             <CardHeader className="border-b py-4">
               <CardTitle>{bucket}</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               {items.map((item) => (
-                <div key={item.id} className="px-6 py-4">
+                <Link
+                  key={item.id}
+                  href={item.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  prefetch={false}
+                  tabIndex={0}
+                  className="block rounded-xl p-6 focus:outline-3 focus:outline-blue-500"
+                >
                   <div className="text-muted-foreground text-xs font-medium">
                     {formatDateTime(item.datetime)}
                   </div>
                   <div className="font-medium">{item.summary}</div>
-                </div>
+                </Link>
               ))}
             </CardContent>
           </Card>
