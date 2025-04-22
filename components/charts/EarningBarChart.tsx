@@ -1,5 +1,7 @@
 "use client";
 
+import { QuarterlyDataPoint } from "@/types/yahooFinance";
+import React from "react";
 import {
   Bar,
   BarChart,
@@ -10,15 +12,19 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { EarningsData } from "../stock/Earnings";
 
+// helper to format big numbers
 const formatMarketCap = (value: number): string => {
   if (value === 0) return "$0";
-  if (value >= 1e12) return `$${value / 1e12}T`;
-  if (value >= 1e9) return `$${value / 1e9}B`;
-  if (value >= 1e6) return `$${value / 1e6}M`;
-  return `$${value}`;
+  if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`;
+  if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
+  if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
+  return `$${value.toLocaleString()}`;
 };
+
+interface EarningBarChartProps {
+  data: QuarterlyDataPoint[];
+}
 
 interface CustomBarProps {
   x: number;
@@ -28,7 +34,6 @@ interface CustomBarProps {
   fill?: string;
 }
 
-// Helper to generate an SVG path for a rectangle with only top rounded corners.
 const getRoundedTopRectPath = (
   x: number,
   y: number,
@@ -48,38 +53,31 @@ const getRoundedTopRectPath = (
   `;
 };
 
-const CustomRevenueBar = ({ x, y, width, height, fill }: CustomBarProps) => {
-  const path = getRoundedTopRectPath(x, y, width, height, 10);
-  return <path d={path} fill={fill} fillOpacity={1} />;
-};
+const CustomRevenueBar = ({ x, y, width, height, fill }: CustomBarProps) => (
+  <path d={getRoundedTopRectPath(x, y, width, height, 10)} fill={fill} />
+);
 
-const CustomEarningsBar = ({ x, y, width, height }: CustomBarProps) => {
-  const radius = 10;
-  const path = getRoundedTopRectPath(x, y, width, height, radius);
-  return (
-    <path
-      d={path}
-      fill="var(--chart-orange)"
-      fillOpacity={0.2}
-      stroke="url(#earningsStrokeGradient)"
-      strokeWidth={2}
-      strokeDasharray="3 3"
-    />
-  );
-};
+const CustomEarningsBar = ({ x, y, width, height }: CustomBarProps) => (
+  <path
+    d={getRoundedTopRectPath(x, y, width, height, 10)}
+    fill="var(--chart-orange)"
+    fillOpacity={0.2}
+    stroke="url(#earningsStrokeGradient)"
+    strokeWidth={2}
+    strokeDasharray="3 3"
+  />
+);
 
 const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
+    const point = payload[0].payload as QuarterlyDataPoint;
     return (
       <div className="bg-background/40 rounded-md border p-2 text-sm font-medium shadow-md backdrop-blur-sm">
         <p className="text-primary">
-          {payload[0].payload.revenue && (
-            <span>Revenue: {formatMarketCap(payload[0].payload.revenue)}</span>
-          )}
+          Revenue: {formatMarketCap(point.revenue)}
         </p>
         <p className="text-(--chart-orange)">
-          <span>Earnings: </span>
-          {formatMarketCap(payload[0].payload.earnings)}
+          Earnings: {formatMarketCap(point.earnings)}
         </p>
       </div>
     );
@@ -87,14 +85,11 @@ const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
   return null;
 };
 
-export default function EarningBarChart({ data }: { data: EarningsData }) {
-  // Focus on quarterly data for now.
-  const { quarterly } = data.earnings?.financialsChart || {};
-
+export default function EarningBarChart({ data }: EarningBarChartProps) {
   return (
-    <div style={{ width: "100%", height: 350 }}>
+    <div style={{ width: "100%", height: 300 }}>
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={quarterly}>
+        <BarChart data={data}>
           <defs>
             <linearGradient
               id="earningsStrokeGradient"
@@ -107,47 +102,46 @@ export default function EarningBarChart({ data }: { data: EarningsData }) {
               <stop
                 offset="0%"
                 stopColor="var(--chart-orange)"
-                stopOpacity="1"
+                stopOpacity={1}
               />
               <stop
                 offset="100%"
                 stopColor="var(--chart-orange)"
-                stopOpacity="0"
+                stopOpacity={0}
               />
             </linearGradient>
           </defs>
 
           <XAxis
-            tickLine={false}
-            axisLine={false}
             dataKey="date"
             type="category"
-            tickFormatter={(value) => value.replace(/(\d+Q)(\d+)/, "$1 $2")}
+            tickFormatter={(v) => (v as string).replace(/(\d+Q)(\d+)/, "$1 $2")}
+            axisLine={false}
+            tickLine={false}
             allowDuplicatedCategory={false}
             tick={{
               fill: "var(--color-muted-foreground)",
               fontSize: 14,
-              fontWeight: "500",
+              fontWeight: 500,
             }}
           />
+
           <YAxis
-            tickLine={false}
-            axisLine={false}
             orientation="right"
-            scale="linear"
-            tickFormatter={(value: number) => formatMarketCap(value)}
+            tickFormatter={formatMarketCap}
+            axisLine={false}
+            tickLine={false}
+            padding={{ top: 20, bottom: 20 }}
             tick={{
               fill: "var(--color-muted-foreground)",
               fontSize: 12,
-              fontWeight: "500",
+              fontWeight: 500,
             }}
-            padding={{ top: 20, bottom: 20 }}
           />
+
           <CartesianGrid
-            syncWithTicks
             vertical={false}
             stroke="var(--color-border)"
-            strokeWidth={1}
             strokeDasharray="4"
           />
 

@@ -1,3 +1,4 @@
+"use client";
 import { cn } from "@/lib/utils";
 
 interface PriceSectionProps {
@@ -38,30 +39,22 @@ export default function PriceLabel({
   const [dollars, decimals] = formattedPrice.split(".");
 
   return (
-    <div>
-      <div className="text-muted-foreground flex items-center font-semibold">
+    <div className="font-semibold">
+      <div className="text-muted-foreground flex items-center">
         {label}
-        {icon && <span className="ml-1">{icon}</span>}
+        {icon && <p className="ml-1">{icon}</p>}
       </div>
-      <div className="space-x-2">
-        <span className="text-lg font-bold md:text-xl">
+      <div className="space-x-2 text-lg font-bold md:text-xl">
+        <span>
           {dollars}
           <span className="text-muted-foreground">.{decimals}</span>
         </span>
-        <span
-          className={cn(
-            "text-lg font-semibold md:text-xl",
-            change > 0 ? "text-green-500" : "text-red-500",
-          )}
-        >
+        <span className={cn(change > 0 ? "text-green-500" : "text-red-500")}>
           {change > 0 ? "+" : ""}
           {change.toFixed(2)}
         </span>
         <span
-          className={cn(
-            "text-lg font-semibold md:text-xl",
-            changePercent > 0 ? "text-green-500" : "text-red-500",
-          )}
+          className={cn(changePercent > 0 ? "text-green-500" : "text-red-500")}
         >
           ({changePercent > 0 ? "+" : ""}
           {formatPercentage(changePercent)})

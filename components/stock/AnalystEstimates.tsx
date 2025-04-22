@@ -1,4 +1,3 @@
-import yahooFinance from "yahoo-finance2";
 import {
   Card,
   CardContent,
@@ -6,47 +5,38 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import StockRadarChart from "../charts/StockRadarChart";
 import { cn } from "@/lib/utils";
+import StockRadarChart from "../charts/StockRadarChart";
+import { StockData } from "@/types/yahooFinance";
 
-async function getStockData(ticker: string) {
-  return yahooFinance.quoteSummary(ticker, {
-    modules: ["recommendationTrend"],
-  });
+interface AnalystEstimatesProps {
+  data: StockData;
+  className?: string;
 }
 
-export type RadarChartData = Awaited<ReturnType<typeof getStockData>>;
-
-export default async function AnalystEstimates({
-  ticker = "AAPL",
+export default function AnalystEstimates({
+  data,
   className,
-}: {
-  ticker: string;
-  className?: string;
-}) {
-  const data = await getStockData(ticker);
-
-  if (!data.recommendationTrend) {
+}: AnalystEstimatesProps) {
+  const trend = data.recommendationTrend;
+  if (!trend) {
     return <div>No data</div>;
   }
 
-  const currentTrend = data.recommendationTrend?.trend?.find(
-    (item) => item.period === "0m", // current month
-  );
+  const current = trend.trend.find((item) => item.period === "0m");
 
-  let verdict = "No verdict available";
-
-  if (currentTrend) {
-    const positiveCount = currentTrend.strongBuy + currentTrend.buy;
-    const negativeCount = currentTrend.strongSell + currentTrend.sell;
-
-    if (positiveCount > negativeCount) {
-      verdict = "Optimistic";
-    } else if (positiveCount < negativeCount) {
-      verdict = "Pessimistic";
-    } else {
-      verdict = "Neutral";
-    }
+  let verdict: string;
+  if (!current) {
+    verdict = "No verdict available";
+  } else {
+    const positive = current.strongBuy + current.buy;
+    const negative = current.strongSell + current.sell;
+    verdict =
+      positive > negative
+        ? "Optimistic"
+        : positive < negative
+          ? "Pessimistic"
+          : "Neutral";
   }
 
   return (
@@ -56,15 +46,15 @@ export default async function AnalystEstimates({
         <CardDescription
           className={cn(
             "font-medium",
-            verdict == "Optimistic" && "text-green-500",
-            verdict == "Pessimistic" && "text-red-500",
+            verdict === "Optimistic" && "text-green-500",
+            verdict === "Pessimistic" && "text-red-500",
           )}
         >
           {verdict}
         </CardDescription>
       </CardHeader>
       <CardContent className="pb-0">
-        <StockRadarChart data={data} />
+        <StockRadarChart trend={trend} />
       </CardContent>
     </Card>
   );

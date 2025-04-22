@@ -15,6 +15,16 @@ export async function getStockChartData(ticker: string, range: string = "1w") {
 }
 
 export async function getStockData(ticker: string) {
-  const result = await yahooFinance.quote(ticker);
+  const result = await yahooFinance.quoteSummary(ticker, {
+    modules: [
+      "price",
+      "summaryDetail",
+      "defaultKeyStatistics",
+      "recommendationTrend",
+      "earnings",
+      "financialData",
+      "calendarEvents",
+    ],
+  });
   return result;
 }

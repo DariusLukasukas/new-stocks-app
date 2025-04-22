@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import {
   CartesianGrid,
   ResponsiveContainer,
@@ -10,74 +11,67 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { EarningsData } from "../stock/Earnings";
-import { Props } from "recharts/types/shape/Dot";
+import type {
+  EarningsChart,
+  QuarterlyEarningsPoint,
+} from "@/types/yahooFinance";
+import type { Props as DotProps } from "recharts/types/shape/Dot";
 
-const CustomActualCircle = (props: Props) => {
-  const { cx, cy, r = 12 } = props;
-  return <circle cx={cx} cy={cy} r={r} fill={"var(--color-primary)"} />;
-};
+interface StockEarningQChartProps {
+  chart: EarningsChart;
+}
 
-const CustomEstimateCircle = (props: Props) => {
-  const { cx, cy, r = 12 } = props;
+const CustomActualCircle = ({ cx, cy, r = 12 }: DotProps) => (
+  <circle cx={cx} cy={cy} r={r} fill="var(--color-primary)" />
+);
 
-  return (
-    <circle
-      cx={cx}
-      cy={cy}
-      r={r}
-      fill="url(#diagonalPattern)"
-      stroke={"var(--chart-orange)"}
-      strokeWidth={2}
-      strokeDasharray="3 3"
-    />
-  );
-};
+const CustomEstimateCircle = ({ cx, cy, r = 12 }: DotProps) => (
+  <circle
+    cx={cx}
+    cy={cy}
+    r={r}
+    fill="url(#diagonalPattern)"
+    stroke="var(--chart-orange)"
+    strokeWidth={2}
+    strokeDasharray="3 3"
+  />
+);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const CustomReferenceTriangle = (props: any) => {
-  const { cx, cy, r = 8, payload } = props;
-
-  const hit = payload && payload.hit;
+const CustomReferenceTriangle = ({ cx, cy, payload }: any) => {
+  const { hit } = payload as { hit: boolean };
   const fill = hit ? "var(--chart-green)" : "var(--chart-red)";
+  const r = 8;
 
+  // point‐up if beat, point‐down if missed
   const points = hit
     ? `${cx},${cy - r} ${cx - r},${cy + r} ${cx + r},${cy + r}`
     : `${cx - r},${cy - r} ${cx + r},${cy - r} ${cx},${cy + r}`;
 
-  const labelText = hit ? "beat" : "missed";
-  // Place the text above the triangle: top of triangle is at (cy - r).
-  const textOffset = 6;
-  const textY = cy - r - textOffset;
-
   return (
-    <g style={{ pointerEvents: "none" }}>
+    <g pointerEvents="none">
       <polygon points={points} fill={fill} />
       <text
         x={cx}
-        y={textY}
+        y={cy - r - 6}
         textAnchor="middle"
         fill={fill}
         fontSize={12}
         fontWeight="bold"
       >
-        {labelText}
+        {hit ? "beat" : "missed"}
       </text>
     </g>
   );
 };
 
 const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
-  if (active && payload && payload.length) {
+  if (active && payload?.length) {
+    const d = payload[0].payload as QuarterlyEarningsPoint;
     return (
       <div className="rounded-md border bg-white/5 p-2 text-sm font-medium shadow-md backdrop-blur-sm">
-        <p className="text-primary">
-          {payload[0].payload.actual && (
-            <span>Actual: ${payload[0].payload.actual}</span>
-          )}
-        </p>
+        <p className="text-primary">Actual: ${d.actual.toFixed(2)}</p>
         <p className="text-(--chart-orange)">
-          <span>Estimate: </span>${payload[0].payload.estimate.toFixed(2)}
+          Estimate: ${d.estimate.toFixed(2)}
         </p>
       </div>
     );
@@ -85,32 +79,27 @@ const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
   return null;
 };
 
-export default function StockEarningQChart({ data }: { data: EarningsData }) {
-  if (!data.earnings) {
-    return <div>No data available</div>;
-  }
+export default function StockEarningQChart({ chart }: StockEarningQChartProps) {
   const {
     quarterly,
     currentQuarterEstimate,
     currentQuarterEstimateDate,
     currentQuarterEstimateYear,
-  } = data.earnings.earningsChart;
+  } = chart;
 
-  const currentEstimatePoint = {
+  // Build the “current estimate” point
+  const currentPoint = {
     date: `${currentQuarterEstimateDate}${currentQuarterEstimateYear}`,
     estimate: currentQuarterEstimate,
   };
 
-  // Compute all values from quarterly data.
-  const allValues = quarterly.reduce((acc: number[], d) => {
-    return acc.concat(d.actual, d.estimate);
-  }, [] as number[]);
-  const maxY = Math.max(...allValues);
-  const minY = Math.min(...allValues);
-  // Calculate an offset: 10% of the data range.
+  // Determine max & min for the reference markers
+  const allVals = quarterly.flatMap((d) => [d.actual, d.estimate]);
+  const maxY = Math.max(...allVals);
+  const minY = Math.min(...allVals);
   const offset = (maxY - minY) * 0.1;
 
-  // Build reference data: for each quarter, add a marker with y = maxY and a hit flag.
+  // Build reference markers
   const referenceData = quarterly.map((d) => ({
     date: d.date,
     marker: maxY + offset,
@@ -118,15 +107,15 @@ export default function StockEarningQChart({ data }: { data: EarningsData }) {
   }));
 
   return (
-    <div style={{ width: "100%", height: 350 }}>
+    <div style={{ width: "100%", height: 300 }}>
       <ResponsiveContainer width="100%" height="100%">
         <ScatterChart>
           <defs>
             <pattern
               id="diagonalPattern"
               patternUnits="userSpaceOnUse"
-              width="4"
-              height="4"
+              width={4}
+              height={4}
               patternTransform="rotate(45)"
             >
               <line
@@ -136,57 +125,46 @@ export default function StockEarningQChart({ data }: { data: EarningsData }) {
                 y2="4"
                 stroke="var(--chart-orange)"
                 strokeOpacity={0.5}
-                strokeWidth="4"
+                strokeWidth={4}
               />
             </pattern>
           </defs>
 
           <XAxis
-            tickLine={false}
-            axisLine={false}
             dataKey="date"
             type="category"
-            tickFormatter={(value) => value.replace(/(\d+Q)(\d+)/, "$1 $2")}
+            tickFormatter={(v) => (v as string).replace(/(\d+Q)(\d+)/, "$1 $2")}
+            axisLine={false}
+            tickLine={false}
             allowDuplicatedCategory={false}
             tick={{
               fill: "var(--color-muted-foreground)",
               fontSize: 14,
-              fontWeight: "500",
+              fontWeight: 500,
             }}
           />
           <YAxis
-            tickLine={false}
-            axisLine={false}
             orientation="right"
             domain={["dataMin", "dataMax"]}
             padding={{ top: 20, bottom: 20 }}
-            scale={"linear"}
-            tickFormatter={(value: number) => `$${value.toFixed(2)}`}
+            tickFormatter={(v: number) => `$${v.toFixed(2)}`}
             tick={{
               fill: "var(--color-muted-foreground)",
               fontSize: 12,
-              fontWeight: "500",
+              fontWeight: 500,
             }}
+            axisLine={false}
+            tickLine={false}
           />
           <CartesianGrid
             syncWithTicks
             vertical={false}
             stroke="var(--color-border)"
           />
+
           <Tooltip cursor={false} content={<CustomTooltip />} />
 
-          <Scatter
-            name="Estimate"
-            data={quarterly}
-            dataKey="estimate"
-            shape={(props: Props) => <CustomEstimateCircle {...props} />}
-          />
-          <Scatter
-            name="Current Estimate"
-            data={[currentEstimatePoint]}
-            dataKey="estimate"
-            shape={(props: Props) => <CustomEstimateCircle {...props} />}
-          />
+          {/* actual vs estimate */}
           <Scatter
             name="Actual"
             data={quarterly}
@@ -194,10 +172,23 @@ export default function StockEarningQChart({ data }: { data: EarningsData }) {
             shape={CustomActualCircle}
           />
           <Scatter
+            name="Estimate"
+            data={quarterly}
+            dataKey="estimate"
+            shape={CustomEstimateCircle}
+          />
+          <Scatter
+            name="Current Estimate"
+            data={[currentPoint]}
+            dataKey="estimate"
+            shape={CustomEstimateCircle}
+          />
+          {/* reference “hit/miss” markers */}
+          <Scatter
             name="Reference"
             data={referenceData}
             dataKey="marker"
-            shape={(props: Props) => <CustomReferenceTriangle {...props} />}
+            shape={CustomReferenceTriangle}
           />
         </ScatterChart>
       </ResponsiveContainer>

@@ -1,122 +1,100 @@
-import yahooFinance from "yahoo-finance2";
 import { cn } from "@/lib/utils";
+import type { StockData } from "@/types/yahooFinance";
 
-// Formatters
-const formatMarketCap = (value: number): string => {
-  if (!value) return "N/A";
-  if (value >= 1e12) return `$${(value / 1e12).toFixed(2)}T`;
-  if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
-  if (value >= 1e6) return `$${(value / 1e6).toFixed(2)}M`;
-  return `$${value}`;
-};
-
-const formatPercent = (value: number): string =>
-  value != null ? `${(value * 100).toFixed(2)}%` : "N/A";
-
-const formatNumber = (value: number): string =>
-  value != null ? value.toFixed(2) : "N/A";
-
-const formatPrice = (price: number): string =>
-  new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(price);
-
-// Helper to safely access nested values using optional chaining
-const getNestedValue = (obj: any, path: string): any =>
-  path.split(".").reduce((acc, key) => acc?.[key], obj);
-
-interface KPIData {
+type Formatter = (v: number) => string;
+interface KPIConfig {
   label: string;
-  key: string;
-  formatter?: (value: number) => string;
+  getValue: (d: StockData) => number | null;
+  formatter?: Formatter;
 }
 
-const KPIS_DATA: KPIData[] = [
+const formatMarketCap: Formatter = (v) =>
+  v >= 1e12
+    ? `$${(v / 1e12).toFixed(2)}T`
+    : v >= 1e9
+      ? `$${(v / 1e9).toFixed(2)}B`
+      : v >= 1e6
+        ? `$${(v / 1e6).toFixed(2)}M`
+        : `$${v.toFixed(0)}`;
+
+const formatPercent: Formatter = (v) => `${(v * 100).toFixed(2)}%`;
+const formatNumber: Formatter = (v) => v.toFixed(2);
+const formatPrice: Formatter = (v) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(
+    v,
+  );
+
+const KPI_CONFIGS: KPIConfig[] = [
   {
     label: "Market Cap",
-    key: "summaryDetail.marketCap",
+    getValue: (d) => d.summaryDetail?.marketCap ?? null,
     formatter: formatMarketCap,
   },
   {
     label: "P/E Ratio",
-    key: "summaryDetail.trailingPE",
+    getValue: (d) => d.summaryDetail?.trailingPE ?? null,
     formatter: formatNumber,
   },
   {
     label: "EPS",
-    key: "defaultKeyStatistics.trailingEps",
+    getValue: (d) => d.defaultKeyStatistics?.trailingEps ?? null,
     formatter: formatPrice,
   },
   {
     label: "Profit Margins",
-    key: "defaultKeyStatistics.profitMargins",
+    getValue: (d) => d.defaultKeyStatistics?.profitMargins ?? null,
     formatter: formatPercent,
   },
   {
     label: "Price/Sales",
-    key: "summaryDetail.priceToSalesTrailing12Months",
+    getValue: (d) => d.summaryDetail?.priceToSalesTrailing12Months ?? null,
     formatter: formatNumber,
   },
   {
     label: "Dividend Yield",
-    key: "summaryDetail.dividendYield",
+    getValue: (d) => d.summaryDetail?.dividendYield ?? null,
     formatter: formatPercent,
   },
-  { label: "Short Ratio", key: "defaultKeyStatistics.shortRatio" },
-  { label: "Beta", key: "summaryDetail.beta", formatter: formatNumber },
+  {
+    label: "Short Ratio",
+    getValue: (d) => d.defaultKeyStatistics?.shortRatio ?? null,
+  },
+  {
+    label: "Beta",
+    getValue: (d) => d.summaryDetail?.beta ?? null,
+    formatter: formatNumber,
+  },
 ];
 
-async function getStockData(ticker: string) {
-  return yahooFinance.quoteSummary(ticker, {
-    modules: ["summaryDetail", "defaultKeyStatistics"],
-  });
-}
-
-interface KPIsProps {
-  ticker: string;
-}
-
-interface KPIItemProps {
-  label: string;
-  value: number | null;
-  formatter?: (value: number) => string;
-}
-
-const KPIItem = ({ label, value, formatter }: KPIItemProps) => {
-  const formattedValue =
-    value != null ? (formatter ? formatter(value) : value) : "N/A";
-  return (
-    <div className="flex w-full flex-row items-center justify-between py-2 lg:flex-col">
-      <div className="text-muted-foreground text-sm font-medium">{label}</div>
-      <div
-        className={cn("font-medium", {
-          "text-muted-foreground": formattedValue === "N/A",
-        })}
-      >
-        {formattedValue}
-      </div>
-    </div>
-  );
-};
-
-export default async function KPIs({ ticker }: KPIsProps) {
-  const stock = await getStockData(ticker);
-
-  if (!stock) {
-    return null;
+export default function KPIs({ data }: { data: StockData }) {
+  // If key modules are missing
+  if (!data.summaryDetail || !data.defaultKeyStatistics) {
+    return <div>No data available</div>;
   }
+
   return (
     <>
-      {KPIS_DATA.map(({ label, key, formatter }) => {
-        const value = getNestedValue(stock, key);
+      {KPI_CONFIGS.map(({ label, getValue, formatter }) => {
+        const raw = getValue(data);
+        const display =
+          raw != null ? (formatter ? formatter(raw) : raw.toString()) : "N/A";
+
         return (
-          <KPIItem
-            key={key}
-            label={label}
-            value={value}
-            formatter={formatter}
-          />
+          <div
+            key={label}
+            className="flex w-full items-center justify-between py-2 lg:flex-col"
+          >
+            <div className="text-muted-foreground text-sm font-medium">
+              {label}
+            </div>
+            <div
+              className={cn("font-medium", {
+                "text-muted-foreground": display === "N/A",
+              })}
+            >
+              {display}
+            </div>
+          </div>
         );
       })}
     </>

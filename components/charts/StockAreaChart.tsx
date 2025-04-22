@@ -198,7 +198,7 @@ export default function StockAreaChart({ data }: ChartProps) {
   return (
     <div className="flex flex-col">
       <div
-        style={{ width: "100%", height: 400 }}
+        style={{ width: "100%", height: 350 }}
         className="relative select-none"
       >
         {/* DOTS */}
@@ -211,14 +211,16 @@ export default function StockAreaChart({ data }: ChartProps) {
             className="font-mono"
           >
             <defs>
-              <linearGradient id="colorHigh" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                {/* 80% opaque at the very top */}
                 <stop
-                  offset="5%"
+                  offset="0%"
                   stopColor="var(--color-primary)"
-                  stopOpacity={0.0}
+                  stopOpacity={0.1}
                 />
+                {/* fully transparent at the bottom */}
                 <stop
-                  offset="95%"
+                  offset="100%"
                   stopColor="var(--color-primary)"
                   stopOpacity={0}
                 />
@@ -270,7 +272,7 @@ export default function StockAreaChart({ data }: ChartProps) {
               stroke="var(--color-primary)"
               strokeWidth={2}
               fillOpacity={1}
-              fill="url(#colorHigh)"
+              fill="url(#areaGradient)"
             />
             {isMarketOpen && currentDataPoint && (
               <ReferenceDot

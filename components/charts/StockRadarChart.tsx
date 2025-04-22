@@ -7,51 +7,44 @@ import {
   PolarAngleAxis,
   ResponsiveContainer,
 } from "recharts";
-import { RadarChartData } from "../stock/AnalystEstimates";
+import { RecommendationTrend } from "@/types/yahooFinance";
 
-export default function StockRadarChart({ data }: { data: RadarChartData }) {
-  if (!data.recommendationTrend) {
-    return <div>No data</div>;
-  }
+interface StockRadarChartProps {
+  trend: RecommendationTrend;
+}
 
-  const currentTrend = data.recommendationTrend.trend.find(
-    (item) => item.period === "0m",
-  );
-
-  if (!currentTrend) {
+export default function StockRadarChart({ trend }: StockRadarChartProps) {
+  const current = trend.trend.find((item) => item.period === "0m");
+  if (!current) {
     return <div>No current trend data</div>;
   }
 
   const chartData = [
-    { label: "Neutral", value: currentTrend.hold },
-    { label: "Buy", value: currentTrend.buy },
-    { label: "Strong Buy", value: currentTrend.strongBuy },
-    { label: "Strong Sell", value: currentTrend.strongSell },
-    { label: "Sell", value: currentTrend.sell },
+    { label: "Neutral", value: current.hold },
+    { label: "Buy", value: current.buy },
+    { label: "Strong Buy", value: current.strongBuy },
+    { label: "Strong Sell", value: current.strongSell },
+    { label: "Sell", value: current.sell },
   ];
 
   return (
-    <div style={{ width: "100%", height: 350 }}>
+    <div style={{ width: "100%", height: 300 }}>
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
           <PolarGrid stroke="var(--border)" />
           <PolarAngleAxis
             dataKey="label"
-            tick={(props) => {
-              const { payload, ...rest } = props;
-              const dataItem = chartData.find(
-                (item) => item.label === payload.value,
-              );
-              const displayValue = dataItem ? dataItem.value : "-";
-
+            tick={({ payload, ...rest }) => {
+              const item = chartData.find((d) => d.label === payload.value);
+              const display = item ? item.value : "-";
               return (
                 <text {...rest} y={rest.y + 4} className="text-sm font-medium">
                   <tspan fill="var(--color-muted-foreground)">
-                    {payload?.value}
+                    {payload.value}
                   </tspan>
                   <tspan fill="var(--color-card-foreground)">
-                    {" "}
-                    {displayValue}
+                    {" "}
+                    {display}
                   </tspan>
                 </text>
               );
@@ -63,11 +56,7 @@ export default function StockRadarChart({ data }: { data: RadarChartData }) {
             stroke="var(--chart-blue)"
             fill="var(--chart-blue)"
             fillOpacity={0.6}
-            dot={{
-              r: 4,
-              fill: "var(--chart-blue)",
-              fillOpacity: 1,
-            }}
+            dot={{ r: 4, fill: "var(--chart-blue)", fillOpacity: 1 }}
           />
         </RadarChart>
       </ResponsiveContainer>

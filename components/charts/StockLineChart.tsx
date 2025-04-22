@@ -1,7 +1,6 @@
 "use client";
 
-import { ChartData } from "@/app/stock/[ticker]/page";
-import React from "react";
+import { StockChartData } from "@/types/yahooFinance";
 import {
   LineChart,
   Line,
@@ -38,7 +37,7 @@ export default function StockLineChart({
   targetHighPrice: number;
   targetLowPrice: number;
   targetMedianPrice: number;
-  chartData: ChartData;
+  chartData: StockChartData;
 }) {
   if (!chartData || !chartData.quotes || chartData.quotes.length === 0) {
     return <div>No chart data available</div>;
@@ -104,16 +103,17 @@ export default function StockLineChart({
   const lastForecastPoint = forecastPoints[forecastPoints.length - 1];
 
   return (
-    <div style={{ width: "100%", height: 350 }}>
+    <div style={{ width: "100%", height: 300 }}>
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={fullData}
-          margin={{ top: 10, right: 80, left: 20, bottom: 20 }}
+          margin={{ top: 10, right: 80, left: 0, bottom: 20 }}
         >
           <XAxis
             hide
             dataKey="time"
             tickFormatter={(time) => new Date(time).toLocaleTimeString()}
+            padding={{ left: 100 }}
           />
           <YAxis hide domain={["dataMin - 20", "dataMax + 20"]} />
 
@@ -237,7 +237,6 @@ export default function StockLineChart({
                 </text>
               );
             }}
-            className="z-0"
           />
 
           {/* High Label */}
@@ -314,7 +313,6 @@ export default function StockLineChart({
             strokeWidth={1.5}
             strokeDasharray="5 5"
             dot={false}
-            className="z-50"
           />
 
           {/* Forecast High line */}

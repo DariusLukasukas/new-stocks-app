@@ -1,55 +1,49 @@
-import yahooFinance from "yahoo-finance2";
-import StockEarningQChart from "../charts/StockEarningQChart";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../ui/card";
+} from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import StockEarningQChart from "@/components/charts/StockEarningQChart";
+import type {
+  StockData,
+  EarningsChart,
+  QuarterlyEarningsPoint,
+  EarningsModule,
+} from "@/types/yahooFinance";
 
-async function getEarnings({ ticker }: { ticker: string }) {
-  "use cache";
-  const data = await yahooFinance.quoteSummary(ticker, {
-    modules: ["earnings"],
-  });
-
-  return data;
+interface EarningsProps {
+  data: StockData;
+  className?: string;
 }
-
-export type EarningsData = Awaited<ReturnType<typeof getEarnings>>;
 
 function calculateEPSChange(
   currentEstimate: number,
-  quarterly: { actual: number }[],
+  quarterly: QuarterlyEarningsPoint[],
 ): { epsText: string; colorClass: string } {
-  const lastEPS = quarterly[quarterly.length - 1].actual;
-  if (!lastEPS) {
+  const last = quarterly[quarterly.length - 1].actual;
+  if (last == null) {
     return { epsText: "EPS forecast unavailable", colorClass: "" };
   }
-  const change = ((currentEstimate - lastEPS) / lastEPS) * 100;
-  const roundedChange = Math.abs(Math.round(change));
-  const direction = change >= 0 ? "up" : "down";
-  const epsText = `EPS forecast ${direction} by ${roundedChange}%`;
-  const colorClass = direction === "up" ? "text-green-500" : "text-red-500";
-  return { epsText, colorClass };
+  const change = ((currentEstimate - last) / last) * 100;
+  const pct = Math.abs(Math.round(change));
+  const up = change >= 0;
+  return {
+    epsText: `EPS forecast ${up ? "up" : "down"} by ${pct}%`,
+    colorClass: up ? "text-green-500" : "text-red-500",
+  };
 }
 
-export default async function Earnings({
-  ticker = "AAPL",
-  className,
-}: {
-  ticker: string;
-  className?: string;
-}) {
-  const data = await getEarnings({ ticker });
-
-  if (!data || !data.earnings) {
+export default function Earnings({ data, className }: EarningsProps) {
+  const em: EarningsModule | undefined = data.earnings;
+  if (!em?.earningsChart) {
     return <div>No data available</div>;
   }
 
-  const { currentQuarterEstimate, quarterly } = data.earnings.earningsChart;
+  const chart: EarningsChart = em.earningsChart;
+  const { quarterly, currentQuarterEstimate } = chart;
 
   if (!quarterly?.length || currentQuarterEstimate == null) {
     return <div>No quarterly earnings data available</div>;
@@ -69,7 +63,7 @@ export default async function Earnings({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <StockEarningQChart data={data} />
+        <StockEarningQChart chart={chart} />
       </CardContent>
     </Card>
   );

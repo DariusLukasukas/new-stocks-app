@@ -112,7 +112,7 @@ const Item = memo(function Item({
       </p>
       <p
         className={cn(
-          "min-w-20 rounded-lg px-2 py-0.5 text-center font-medium",
+          "min-w-20 rounded-md px-2 py-0.5 text-center font-medium",
           changePercent != null && changePercent >= 0
             ? "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300"
             : "bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300",

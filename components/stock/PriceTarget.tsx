@@ -1,44 +1,26 @@
-import yahooFinance from "yahoo-finance2";
-import StockLineChart from "../charts/StockLineChart";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../ui/card";
-import { DEFAULT_INTERVALS } from "@/app/stock/[ticker]/page";
-import { getInterval, getPeriod1 } from "@/lib/chartUtils";
+} from "@/components/ui/card";
+import StockLineChart from "@/components/charts/StockLineChart";
 import { cn } from "@/lib/utils";
+import { getStockChartData } from "@/app/stock/[ticker]/actions";
+import {
+  FinancialData,
+  PriceData,
+  StockChartData,
+  StockData,
+} from "@/types/yahooFinance";
 
-async function getStockChartData(ticker: string, range: string = "1y") {
-  "use cache";
-  const queryOptions = {
-    period1: getPeriod1(range),
-    period2: new Date()
-      .toLocaleString("en-US", { timeZone: "America/New_York" })
-      .split("T")[0],
-    interval: getInterval(range) as DEFAULT_INTERVALS,
-  };
-  const result = await yahooFinance.chart(ticker, queryOptions);
-  return result;
+/** Calculate upside in percent */
+function calculateUpside(current: number, target: number): number {
+  return ((target - current) / current) * 100;
 }
 
-async function getStockData(ticker: string) {
-  "use cache";
-
-  return yahooFinance.quoteSummary(ticker, {
-    modules: ["price", "financialData"],
-  });
-}
-
-function calculateUpside(
-  currentPrice: number,
-  targetHighPrice: number,
-): number {
-  return ((targetHighPrice - currentPrice) / currentPrice) * 100;
-}
-
+/** Format USD */
 function formatPrice(price: number): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -46,35 +28,37 @@ function formatPrice(price: number): string {
   }).format(price);
 }
 
-export default async function PriceTarget({
-  ticker = "AAPL",
-  className,
-}: {
+interface PriceTargetProps {
+  data: StockData;
   ticker: string;
   className?: string;
-}) {
-  const chartData = await getStockChartData(ticker, "1y");
-  const data = await getStockData(ticker);
+}
 
-  if (!data.financialData) {
-    return <div>No data</div>;
+export default async function PriceTarget({
+  data,
+  ticker,
+  className,
+}: PriceTargetProps) {
+  const chartData: StockChartData = await getStockChartData(ticker, "1y");
+
+  const fd: FinancialData | undefined = data.financialData;
+  if (!fd) return <div>No target price data</div>;
+
+  const { targetHighPrice, targetLowPrice, targetMedianPrice } = fd;
+  if (
+    targetHighPrice == null ||
+    targetLowPrice == null ||
+    targetMedianPrice == null
+  ) {
+    return <div>No complete target price data</div>;
   }
-  const { targetHighPrice, targetLowPrice, targetMedianPrice } =
-    data.financialData;
 
-  if (!targetHighPrice || !targetLowPrice || !targetMedianPrice) {
-    return <div>No target price data</div>;
+  const pd: PriceData | undefined = data.price;
+  if (!pd || pd.regularMarketPrice == null) {
+    return <div>No current price data</div>;
   }
-
-  if (!data.price) {
-    return <div>No price data</div>;
-  }
-
-  const { regularMarketPrice } = data.price;
-
-  if (!regularMarketPrice) {
-    return <div>No regular market price data</div>;
-  }
+  const current = pd.regularMarketPrice;
+  const upside = calculateUpside(current, targetHighPrice);
 
   return (
     <Card className={className}>
@@ -83,22 +67,19 @@ export default async function PriceTarget({
         <CardDescription
           className={cn(
             "font-medium",
-            calculateUpside(regularMarketPrice, targetHighPrice) > 0
-              ? "text-green-500"
-              : "text-red-500",
+            upside > 0 ? "text-green-500" : "text-red-500",
           )}
         >
-          {formatPrice(regularMarketPrice)}(
-          {`+${calculateUpside(regularMarketPrice, targetHighPrice).toFixed(2)}%`}{" "}
-          potential)
+          {formatPrice(current)} (+
+          {upside.toFixed(2)}% potential)
         </CardDescription>
       </CardHeader>
       <CardContent className="pb-0">
         <StockLineChart
+          chartData={chartData}
           targetHighPrice={targetHighPrice}
           targetLowPrice={targetLowPrice}
           targetMedianPrice={targetMedianPrice}
-          chartData={chartData}
         />
       </CardContent>
     </Card>

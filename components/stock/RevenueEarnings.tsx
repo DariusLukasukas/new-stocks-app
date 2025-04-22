@@ -1,41 +1,35 @@
-import yahooFinance from "yahoo-finance2";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../ui/card";
-import EarningBarChart from "../charts/EarningBarChart";
+} from "@/components/ui/card";
+import EarningBarChart from "@/components/charts/EarningBarChart";
+import { QuarterlyDataPoint, StockData } from "@/types/yahooFinance";
 
-async function getEarnings({ ticker }: { ticker: string }) {
-  "use cache";
-  const data = await yahooFinance.quoteSummary(ticker, {
-    modules: ["earnings"],
-  });
-  return data;
+interface RevenueEarningsProps {
+  data: StockData;
+  className?: string;
 }
 
-export type EarningsData = Awaited<ReturnType<typeof getEarnings>>;
-
-export default async function RevenueEarnings({
-  ticker,
+export default function RevenueEarnings({
+  data,
   className,
-}: {
-  ticker: string;
-  className?: string;
-}) {
-  const data = await getEarnings({ ticker });
-
-  if (!data || !data.earnings) {
+}: RevenueEarningsProps) {
+  const earningsModule = data.earnings;
+  if (!earningsModule?.financialsChart?.quarterly) {
     return <div>No data available</div>;
   }
 
-  const quarterly = data.earnings.financialsChart.quarterly;
-  let descContent = <span>N/A</span>;
-  if (quarterly && quarterly.length >= 2) {
-    const curr = quarterly[quarterly.length - 1];
-    const prev = quarterly[quarterly.length - 2];
+  const quarterly: QuarterlyDataPoint[] =
+    earningsModule.financialsChart.quarterly;
+
+  // compute last‑vs‑previous changes
+  let descContent: React.ReactNode = <span>N/A</span>;
+
+  if (quarterly.length >= 2) {
+    const [prev, curr] = quarterly.slice(-2);
     const revChange = Math.round(
       ((curr.revenue - prev.revenue) / prev.revenue) * 100,
     );
@@ -43,19 +37,17 @@ export default async function RevenueEarnings({
       ((curr.earnings - prev.earnings) / prev.earnings) * 100,
     );
 
-    const revenueColorClass =
-      revChange >= 0 ? "text-green-500" : "text-red-500";
-    const earningsColorClass =
-      earnChange >= 0 ? "text-green-500" : "text-red-500";
+    const revClass = revChange >= 0 ? "text-green-500" : "text-red-500";
+    const earnClass = earnChange >= 0 ? "text-green-500" : "text-red-500";
 
     descContent = (
       <>
-        <span className={revenueColorClass}>
+        <span className={revClass}>
           Revenue {revChange >= 0 ? "+" : "-"}
           {Math.abs(revChange)}%
         </span>
         {" | "}
-        <span className={earningsColorClass}>
+        <span className={earnClass}>
           Earnings {earnChange >= 0 ? "+" : "-"}
           {Math.abs(earnChange)}%
         </span>
@@ -70,7 +62,7 @@ export default async function RevenueEarnings({
         <CardDescription className="font-medium">{descContent}</CardDescription>
       </CardHeader>
       <CardContent>
-        <EarningBarChart data={data} />
+        <EarningBarChart data={quarterly} />
       </CardContent>
     </Card>
   );
