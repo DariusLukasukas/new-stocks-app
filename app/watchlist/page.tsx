@@ -1,6 +1,8 @@
 import { getStockData, getWatchlists } from "@/components/watchlist/actions";
 import Watchlist from "@/components/watchlist/Watchlist";
 
+export const revalidate = 60; // revalidate every 60 seconds
+
 export default async function page() {
   const watchlists = await getWatchlists();
 

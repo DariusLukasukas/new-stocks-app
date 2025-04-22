@@ -153,15 +153,12 @@ export function Autocomplete() {
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <Command
-        shouldFilter={false}
-        className="rounded-lg border shadow-md md:min-w-[450px]"
-      >
+      <Command shouldFilter={false} className="shadow-md md:min-w-[450px]">
         <CommandInput
           value={searchTerm}
           onValueChange={(val) => setSearchTerm(val)}
-          placeholder="Type a command or search..."
-          className="caret-blue-500"
+          placeholder="Search for a company or ticker..."
+          className="text-lg caret-blue-500"
         />
         <CommandList>
           {debouncedSearchTerm.length > 0 && results.length === 0 && (
@@ -191,7 +188,6 @@ export function Autocomplete() {
               ))}
             </CommandGroup>
           )}
-          {/* <p>Render Count: {renderCount}</p> */}
         </CommandList>
       </Command>
     </CommandDialog>

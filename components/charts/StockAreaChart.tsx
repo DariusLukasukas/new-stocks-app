@@ -17,10 +17,6 @@ import {
 } from "recharts";
 import Range from "./Range";
 
-interface ChartProps {
-  data: ChartData;
-}
-
 const RANGE_OPTIONS = [
   { label: "1D", value: "1d" },
   { label: "1W", value: "1w" },
@@ -152,7 +148,19 @@ const CustomTooltip = ({
   return null;
 };
 
-export default function StockAreaChart({ data }: ChartProps) {
+interface ChartProps {
+  data: ChartData;
+  showDates?: boolean;
+  showRange?: boolean;
+  showChartGradient?: boolean;
+}
+
+export default function StockAreaChart({
+  data,
+  showDates = true,
+  showRange = true,
+  showChartGradient = true,
+}: ChartProps) {
   const searchParams = useSearchParams();
   const range = searchParams.get("range") || "1w";
 
@@ -203,38 +211,59 @@ export default function StockAreaChart({ data }: ChartProps) {
       >
         {/* DOTS */}
         <div className="absolute inset-0 h-full w-full bg-[radial-gradient(var(--color-muted-foreground)_0.5px,transparent_0.5px)] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_60%,transparent_100%)] [background-size:14px_14px] opacity-25" />
-
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={rawData}
             margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
             className="font-mono"
           >
-            <defs>
-              <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                {/* 80% opaque at the very top */}
-                <stop
-                  offset="0%"
-                  stopColor="var(--color-primary)"
-                  stopOpacity={0.1}
-                />
-                {/* fully transparent at the bottom */}
-                <stop
-                  offset="100%"
-                  stopColor="var(--color-primary)"
-                  stopOpacity={0}
-                />
-              </linearGradient>
-            </defs>
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              axisLine={false}
-              ticks={defaultXTicks}
-              domain={defaultXTicks}
-              tickFormatter={(value) => formatXAxisTick(new Date(value), range)}
-              className="text-muted-foreground text-sm font-medium"
-            />
+            {showChartGradient ? (
+              <defs>
+                <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                  {/* 80% opaque at the very top */}
+                  <stop
+                    offset="0%"
+                    stopColor="var(--color-primary)"
+                    stopOpacity={0.1}
+                  />
+                  {/* fully transparent at the bottom */}
+                  <stop
+                    offset="100%"
+                    stopColor="var(--color-primary)"
+                    stopOpacity={0}
+                  />
+                </linearGradient>
+              </defs>
+            ) : (
+              <defs>
+                <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="0%"
+                    stopColor="var(--color-primary)"
+                    stopOpacity={0}
+                  />
+                  <stop
+                    offset="100%"
+                    stopColor="var(--color-primary)"
+                    stopOpacity={0}
+                  />
+                </linearGradient>
+              </defs>
+            )}
+
+            {showDates && (
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                ticks={defaultXTicks}
+                domain={defaultXTicks}
+                tickFormatter={(value) =>
+                  formatXAxisTick(new Date(value), range)
+                }
+                className="text-muted-foreground text-sm font-medium"
+              />
+            )}
             <YAxis
               yAxisId="price"
               tick={false}
@@ -287,7 +316,7 @@ export default function StockAreaChart({ data }: ChartProps) {
           </ComposedChart>
         </ResponsiveContainer>
       </div>
-      <Range RANGE_OPTIONS={RANGE_OPTIONS} />
+      {showRange && <Range RANGE_OPTIONS={RANGE_OPTIONS} />}
     </div>
   );
 }

@@ -28,7 +28,6 @@ const DATA: DockItem[] = [
     label: "News",
     href: "/news",
     icon: <Newspaper />,
-    disabled: true,
   },
   {
     label: "Screener",
@@ -40,7 +39,6 @@ const DATA: DockItem[] = [
     label: "Watchlist",
     href: "/watchlist",
     icon: <BookMarked />,
-    disabled: false,
   },
   {
     label: "Notes",

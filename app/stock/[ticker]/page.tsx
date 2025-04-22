@@ -12,6 +12,8 @@ import Earnings from "@/components/stock/Earnings";
 import RevenueEarnings from "@/components/stock/RevenueEarnings";
 import { getStockChartData, getStockData } from "./actions";
 
+export const revalidate = 60; // revalidate every 60 seconds
+
 export type ChartData = Awaited<ReturnType<typeof getStockChartData>>;
 export type DEFAULT_INTERVALS = "1m" | "15m" | "30m" | "60m" | "1d";
 
