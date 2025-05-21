@@ -57,7 +57,7 @@ export default function Dock() {
   return (
     <div className="fixed bottom-4 z-50 w-full">
       <div className="container mx-auto flex items-center justify-center">
-        <nav className="animate-dock-slide-up dark:bg-background/10 flex items-center gap-4 rounded-full border bg-neutral-200/50 p-2 shadow-lg backdrop-blur-sm transition-transform will-change-transform">
+        <nav className="animate-dock-slide-up bg-background-tertiary/80 flex items-center gap-4 rounded-full border p-2 backdrop-blur-sm transition-transform will-change-transform">
           {DATA.map((item, index) => (
             <button
               key={index}

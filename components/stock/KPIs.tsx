@@ -84,11 +84,9 @@ export default function KPIs({ data }: { data: StockData }) {
             key={label}
             className="flex w-full items-center justify-between py-2 lg:flex-col"
           >
-            <div className="text-muted-foreground text-sm font-medium">
-              {label}
-            </div>
+            <div className="text-muted-foreground font-medium">{label}</div>
             <div
-              className={cn("font-medium", {
+              className={cn("font-mono font-medium tabular-nums", {
                 "text-muted-foreground": display === "N/A",
               })}
             >

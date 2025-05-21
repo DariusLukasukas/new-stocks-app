@@ -53,7 +53,7 @@ export default function AnalystEstimates({
           {verdict}
         </CardDescription>
       </CardHeader>
-      <CardContent className="pb-0">
+      <CardContent className="flex h-[300px] items-center justify-center pb-0">
         <StockRadarChart trend={trend} />
       </CardContent>
     </Card>

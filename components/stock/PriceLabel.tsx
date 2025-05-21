@@ -39,26 +39,26 @@ export default function PriceLabel({
   const [dollars, decimals] = formattedPrice.split(".");
 
   return (
-    <div className="font-semibold">
-      <div className="text-muted-foreground flex items-center">
+    <div>
+      <div className="text-text-secondary flex items-center text-lg font-semibold">
         {label}
         {icon && <p className="ml-1">{icon}</p>}
       </div>
-      <div className="space-x-2 text-lg font-bold md:text-xl">
-        <span>
+      <div className="flex flex-row items-end gap-2 font-mono text-xl leading-tight font-bold tracking-tight tabular-nums md:text-2xl">
+        <p className="flex items-baseline">
           {dollars}
-          <span className="text-muted-foreground">.{decimals}</span>
-        </span>
-        <span className={cn(change > 0 ? "text-green-500" : "text-red-500")}>
+          <span className="text-text-secondary">.{decimals}</span>
+        </p>
+        <p className={change > 0 ? "text-green-500" : "text-red-500"}>
           {change > 0 ? "+" : ""}
           {change.toFixed(2)}
-        </span>
-        <span
+        </p>
+        <p
           className={cn(changePercent > 0 ? "text-green-500" : "text-red-500")}
         >
-          ({changePercent > 0 ? "+" : ""}
-          {formatPercentage(changePercent)})
-        </span>
+          {changePercent > 0 ? "+" : ""}
+          {formatPercentage(changePercent)}
+        </p>
       </div>
     </div>
   );

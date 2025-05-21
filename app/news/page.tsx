@@ -56,7 +56,7 @@ export default async function Page({
         {Object.entries(grouped).map(([bucket, items]) => (
           <Card
             key={bucket}
-            className="bg-secondary dark:bg-secondary/50 overflow-visible rounded-3xl border-none shadow-none"
+            className="bg-background-secondary dark:bg-secondary/50 overflow-visible rounded-3xl border-none shadow-none"
           >
             <CardHeader className="border-b py-4">
               <CardTitle>{bucket}</CardTitle>

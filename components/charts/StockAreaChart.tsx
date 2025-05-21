@@ -17,7 +17,7 @@ import {
 } from "recharts";
 import Range from "./Range";
 
-const RANGE_OPTIONS = [
+export const RANGE_OPTIONS = [
   { label: "1D", value: "1d" },
   { label: "1W", value: "1w" },
   { label: "1M", value: "1m" },
@@ -137,11 +137,20 @@ const CustomTooltip = ({
 }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     const dateLabel = formatTooltipLabel(new Date(label), range);
-    const price = payload[0].value;
+    const { value: price, color } = payload[0];
     return (
       <div className="text-primary rounded-md border bg-white/5 p-2 text-sm font-medium shadow-md backdrop-blur-sm">
         <div>{dateLabel}</div>
-        <div>Price: {formatPrice(price!)}</div>
+        <div className="mt-1 flex items-center">
+          {/* marker line: */}
+          <span
+            style={{
+              backgroundColor: color,
+            }}
+            className="mr-1 inline-block h-4 w-1 rounded-t-sm rounded-b-sm"
+          />
+          <span>Price: {formatPrice(price!)}</span>
+        </div>{" "}
       </div>
     );
   }
@@ -206,11 +215,12 @@ export default function StockAreaChart({
   return (
     <div className="flex flex-col">
       <div
-        style={{ width: "100%", height: 350 }}
+        style={{ width: "100%", height: 420 }}
         className="relative select-none"
       >
         {/* DOTS */}
-        <div className="absolute inset-0 h-full w-full bg-[radial-gradient(var(--color-muted-foreground)_0.5px,transparent_0.5px)] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_60%,transparent_100%)] [background-size:14px_14px] opacity-25" />
+        <div className="absolute inset-0 h-full w-full bg-[radial-gradient(var(--color-muted-foreground)_0.5px,transparent_0.5px)] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_60%,transparent_100%)] [background-size:17px_17px] dark:opacity-80" />
+
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
             data={rawData}

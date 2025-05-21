@@ -1,9 +1,8 @@
 import StockAreaChart from "@/components/charts/StockAreaChart";
 import PriceLabel from "@/components/stock/PriceLabel";
 import GoBack from "@/components/ui/go-back";
-import { Bookmark, Moon } from "lucide-react";
+import { Moon, Sunrise } from "lucide-react";
 import KPIs from "@/components/stock/KPIs";
-import { Button } from "@/components/ui/button";
 import TickerImage from "@/components/stock/TickerImage";
 import AnalystEstimates from "@/components/stock/AnalystEstimates";
 import PriceTarget from "@/components/stock/PriceTarget";
@@ -26,83 +25,131 @@ export default async function Page({
 }) {
   const { ticker } = await params;
   const { range = "1w" } = await searchParams;
-
   const chartData = await getStockChartData(ticker, String(range));
   const stockData = await getStockData(ticker);
   const [stock, chart] = await Promise.all([stockData, chartData]);
 
+  console.log(stock);
+
+  const {
+    marketState,
+    preMarketPrice,
+    preMarketChange,
+    preMarketChangePercent,
+    regularMarketPrice,
+    regularMarketChange,
+    regularMarketChangePercent,
+    postMarketPrice,
+    postMarketChange,
+    postMarketChangePercent,
+  } = stock.price!;
+
+  // choose which bucket to show
+  let label: string;
+  let price: number;
+  let change: number;
+  let changePercent: number;
+  let icon: React.ReactNode | undefined;
+
+  switch (marketState) {
+    case "PRE":
+      label = "Pre-Market";
+      price = preMarketPrice;
+      change = preMarketChange;
+      changePercent = preMarketChangePercent;
+      // you can swap in a sunrise icon if you like
+      icon = (
+        <Sunrise
+          size={12}
+          className="fill-muted-foreground stroke-muted-foreground"
+        />
+      );
+      break;
+
+    case "POST":
+      label = "After Hours";
+      price = postMarketPrice;
+      change = postMarketChange;
+      changePercent = postMarketChangePercent;
+      icon = (
+        <Moon
+          size={12}
+          className="fill-muted-foreground stroke-muted-foreground"
+        />
+      );
+      break;
+
+    case "REGULAR":
+    default:
+      label = "Market Price";
+      price = regularMarketPrice;
+      change = regularMarketChange;
+      changePercent = regularMarketChangePercent;
+  }
+
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-row items-center justify-between">
+      <div className="flex flex-row items-center justify-between py-2">
         <div className="flex flex-row items-center gap-2">
           <GoBack />
-          <div className="inline-flex size-10 items-center justify-center rounded-md bg-black p-1 dark:border">
+          <div className="relative inline-flex size-12 items-center justify-center rounded-2xl bg-black p-2 select-none dark:border">
             <TickerImage ticker={ticker} />
           </div>
-          <div className="flex h-10 flex-col justify-center gap-0.5 leading-none">
-            <p className="font-bold">{stock.price!.symbol}</p>
-            <p className="text-muted-foreground font-medium">
-              {stock.price!.longName}
-            </p>
+          <div className="flex h-10 flex-col justify-center truncate text-base leading-tight font-semibold tracking-[.009em]">
+            <p>{stock.price!.symbol}</p>
+            <p className="text-text-secondary">{stock.price!.longName}</p>
           </div>
-        </div>
-
-        <div className="inline-flex gap-2">
-          <Button variant="secondary">AI Insights</Button>
-          <Button variant="secondary">
-            <Bookmark className="fill-blue-500 stroke-blue-500" />
-          </Button>
         </div>
       </div>
 
       <div className="flex flex-col">
-        <div className="flex flex-row gap-8 py-8">
+        <div className="flex flex-row items-end gap-8 py-8">
           <PriceLabel
-            label="At close"
-            price={stock.price!.regularMarketPrice}
-            change={stock.price!.regularMarketChange}
-            changePercent={stock.price!.regularMarketChangePercent}
-          />
-          <PriceLabel
-            label="After hours"
-            icon={
-              <Moon
-                size={12}
-                className="fill-muted-foreground stroke-muted-foreground"
-              />
-            }
-            price={stock.price!.postMarketPrice}
-            change={stock.price!.postMarketChange}
-            changePercent={stock.price!.postMarketChangePercent}
+            label={label}
+            icon={icon}
+            price={price}
+            change={change}
+            changePercent={changePercent}
           />
         </div>
 
         <StockAreaChart data={chart} />
       </div>
 
-      <div className="py-10">
-        <Card className="border-none bg-neutral-100/50 dark:bg-zinc-900/70">
-          <CardContent className="divide-y-1 pt-6 lg:grid lg:grid-cols-8 lg:divide-none">
-            <KPIs data={stock} />
-          </CardContent>
-        </Card>
-      </div>
+      <Card className="bg-background-secondary my-10 rounded-3xl border-none p-6 shadow-none">
+        <CardContent className="divide-y-1 p-0 lg:grid lg:grid-cols-8 lg:divide-none">
+          <KPIs data={stock} />
+        </CardContent>
+      </Card>
 
-      <Card className="mb-24 border-none bg-neutral-100/50 md:px-8 dark:bg-zinc-900/70">
+      <Card className="bg-background-secondary rounded-3xl border-none shadow-none">
         <CardHeader>
-          <CardTitle className="text-lg">Analyst estimates</CardTitle>
+          <CardTitle className="text-xl">Analyst estimates</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          <AnalystEstimates data={stock} className="border-none" />
-          <PriceTarget data={stock} ticker={ticker} className="border-none" />
+        <CardContent className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+          <AnalystEstimates
+            data={stock}
+            className="bg-background-primary rounded-3xl border-none shadow-none"
+          />
+          <PriceTarget
+            data={stock}
+            ticker={ticker}
+            className="bg-background-primary rounded-3xl border-none shadow-none"
+          />
         </CardContent>
 
         <CardHeader>
-          <CardTitle className="text-lg">Earnings</CardTitle>
+          <CardTitle className="text-xl">Earnings</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-          <RevenueEarnings data={stock} className="border-none" />
-          <Earnings data={stock} className="border-none" />
+        <CardContent className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+          <RevenueEarnings
+            data={stock}
+            className="bg-background-primary rounded-3xl border-none shadow-none"
+          />
+          <Earnings
+            data={stock}
+            className="bg-background-primary rounded-3xl border-none shadow-none"
+          />
         </CardContent>
       </Card>
     </div>

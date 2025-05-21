@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-background min-h-svh antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} bg-background-primary text-primary min-h-svh antialiased`}
       >
         <ThemeProvider
           attribute="class"
@@ -37,7 +37,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Container>{children}</Container>
+          <Container variant={"fullMobileConstrainedPadded"} className="mb-24">
+            {children}
+          </Container>
           <Dock />
           <Autocomplete />
         </ThemeProvider>

@@ -153,14 +153,17 @@ export function Autocomplete() {
 
   return (
     <CommandDialog open={open} onOpenChange={setOpen}>
-      <Command shouldFilter={false} className="shadow-md md:min-w-[450px]">
+      <Command
+        shouldFilter={false}
+        className="rounded-none shadow-md md:min-w-[450px]"
+      >
         <CommandInput
           value={searchTerm}
           onValueChange={(val) => setSearchTerm(val)}
           placeholder="Search for a company or ticker..."
           className="text-lg caret-blue-500"
         />
-        <CommandList>
+        <CommandList className="[&::-webkit-scrollbar-track]:bg-glass-background-secondary [&::-webkit-scrollbar-thumb]:bg-glass-background-primary hover:[&::-webkit-scrollbar-thumb]:bg-glass-background-secondary-hover dark:[&::-webkit-scrollbar-thumb]:bg-background-modal dark:hover:[&::-webkit-scrollbar-thumb]:bg-glass-background-secondary-hover overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full md:text-glass-text-secondary">
           {debouncedSearchTerm.length > 0 && results.length === 0 && (
             <CommandEmpty>No results found.</CommandEmpty>
           )}
@@ -175,15 +178,13 @@ export function Autocomplete() {
                     setOpen(false);
                   }}
                 >
-                  <span className="w-16 min-w-fit font-semibold">
-                    {item.ticker}
-                  </span>
-                  <span className="flex-1 font-medium">
+                  <p className="w-16 min-w-fit font-bold">{item.ticker}</p>
+                  <p className="flex-1 font-medium">
                     {capitalizeWords(item.name)}
-                  </span>
-                  <span className="text-muted-foreground ml-auto text-sm font-medium">
-                    {item.exchange}
-                  </span>
+                  </p>
+                  <p className="text-muted-foreground md:text-glass-text-secondary ml-auto text-sm font-medium">
+                    {item.exchange.toUpperCase()}
+                  </p>
                 </CommandItem>
               ))}
             </CommandGroup>
