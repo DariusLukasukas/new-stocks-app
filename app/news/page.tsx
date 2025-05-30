@@ -9,13 +9,7 @@ function formatDateTime(unixSec: number) {
   }).format(new Date(unixSec * 1000));
 }
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const ticker = (await searchParams).ticker;
-
+export default async function Page() {
   const news: topNews[] = await GetGeneralNews();
   // 1) Prepare “today” and “yesterday” markers
   const today = new Date();
@@ -43,6 +37,8 @@ export default async function Page({
     return acc;
   }, {});
 
+  console.log(news);
+
   return (
     <div className="flex flex-col gap-8">
       <div className="py-4">
@@ -56,7 +52,7 @@ export default async function Page({
         {Object.entries(grouped).map(([bucket, items]) => (
           <Card
             key={bucket}
-            className="bg-background-secondary dark:bg-secondary/50 overflow-visible rounded-3xl border-none shadow-none"
+            className="bg-background-secondary overflow-visible rounded-3xl border-none shadow-none"
           >
             <CardHeader className="border-b py-4">
               <CardTitle>{bucket}</CardTitle>
@@ -72,10 +68,10 @@ export default async function Page({
                   tabIndex={0}
                   className="block rounded-xl p-6 focus:outline-3 focus:outline-blue-500"
                 >
-                  <div className="text-muted-foreground text-xs font-medium">
+                  <div className="text-text-secondary text-sm font-medium">
                     {formatDateTime(item.datetime)}
                   </div>
-                  <div className="font-medium">{item.summary}</div>
+                  <div className="font-semibold">{item.summary}</div>
                 </Link>
               ))}
             </CardContent>

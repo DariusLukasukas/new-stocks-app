@@ -212,6 +212,16 @@ export default function StockAreaChart({
     return null;
   }, [isMarketOpen, rawData]);
 
+  const startPrice = rawData[0]?.close ?? 0;
+  // if market is open AND you have a live point, otherwise fall back to the last quote
+  const endPrice =
+    isMarketOpen && currentDataPoint
+      ? currentDataPoint.close
+      : (rawData[rawData.length - 1]?.close ?? 0);
+
+  const isUp = endPrice >= startPrice;
+  const strokeColor = isUp ? "var(--chart-green)" : "var(--chart-red)";
+
   return (
     <div className="flex flex-col">
       <div
@@ -227,36 +237,13 @@ export default function StockAreaChart({
             margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
             className="font-mono"
           >
-            {showChartGradient ? (
+            {showChartGradient && (
               <defs>
                 <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
                   {/* 80% opaque at the very top */}
-                  <stop
-                    offset="0%"
-                    stopColor="var(--color-primary)"
-                    stopOpacity={0.1}
-                  />
+                  <stop offset="0%" stopColor={strokeColor} stopOpacity={0.1} />
                   {/* fully transparent at the bottom */}
-                  <stop
-                    offset="100%"
-                    stopColor="var(--color-primary)"
-                    stopOpacity={0}
-                  />
-                </linearGradient>
-              </defs>
-            ) : (
-              <defs>
-                <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="0%"
-                    stopColor="var(--color-primary)"
-                    stopOpacity={0}
-                  />
-                  <stop
-                    offset="100%"
-                    stopColor="var(--color-primary)"
-                    stopOpacity={0}
-                  />
+                  <stop offset="100%" stopColor={strokeColor} stopOpacity={0} />
                 </linearGradient>
               </defs>
             )}
@@ -308,7 +295,7 @@ export default function StockAreaChart({
               yAxisId="price"
               type="monotone"
               dataKey="close"
-              stroke="var(--color-primary)"
+              stroke={strokeColor}
               strokeWidth={2}
               fillOpacity={1}
               fill="url(#areaGradient)"

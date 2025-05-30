@@ -32,7 +32,7 @@ export default function ThemeToggleDynamic() {
     <button
       onClick={toggleTheme}
       className={cn(
-        "hover:text-accent-foreground ring-ring/10 dark:ring-ring/20 dark:outline-ring/40 outline-ring/50 bg-background text-muted-foreground flex size-10 items-center justify-center rounded-full border transition-transform focus-visible:ring-4 focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 aria-invalid:focus-visible:ring-0",
+        "bg-glass-background-secondary text-glass-text-secondary hover:text-glass-text-primary ring-ring/10 dark:ring-ring/20 dark:outline-ring/40 outline-ring/50 hover:bg-glass-background-secondary-hover flex size-11 cursor-pointer items-center justify-center rounded-full transition-all ease-out focus-visible:ring-4 focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 aria-invalid:focus-visible:ring-0",
         animation && "animate-theme-spin",
       )}
       title="Toggle Theme"

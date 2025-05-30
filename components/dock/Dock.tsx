@@ -55,15 +55,15 @@ const DATA: DockItem[] = [
 
 export default function Dock() {
   return (
-    <div className="fixed bottom-4 z-50 w-full">
+    <div className="fixed bottom-3 z-50 w-full">
       <div className="container mx-auto flex items-center justify-center">
-        <nav className="animate-dock-slide-up bg-background-tertiary/80 flex items-center gap-4 rounded-full border p-2 backdrop-blur-sm transition-transform will-change-transform">
+        <nav className="animate-dock-slide-up bg-glass-background-primary shadow-s flex items-center gap-4 rounded-full p-2 backdrop-blur-sm transition-transform will-change-transform">
           {DATA.map((item, index) => (
             <button
               key={index}
               disabled={item.disabled}
               tabIndex={item.disabled ? -1 : 0}
-              className="bg-background text-muted-foreground hover:text-accent-foreground ring-ring/10 dark:ring-ring/20 dark:outline-ring/40 outline-ring/50 flex size-10 items-center justify-center rounded-full border focus-visible:ring-4 focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 aria-invalid:focus-visible:ring-0"
+              className="bg-glass-background-secondary text-glass-text-secondary hover:text-glass-text-primary ring-ring/10 dark:ring-ring/20 dark:outline-ring/40 outline-ring/50 hover:bg-glass-background-secondary-hover flex size-11 cursor-pointer items-center justify-center rounded-full transition-colors ease-out focus-visible:ring-4 focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 aria-invalid:focus-visible:ring-0"
             >
               <Link
                 href={item.href}

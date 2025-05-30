@@ -37,10 +37,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Container variant={"fullMobileConstrainedPadded"} className="mb-24">
+          <Container variant={"fullMobileConstrainedPadded"}>
             {children}
           </Container>
-          <Dock />
+          {/* <Dock /> */}
           <Autocomplete />
         </ThemeProvider>
       </body>
