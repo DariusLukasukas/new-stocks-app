@@ -28,7 +28,7 @@ import {
   deleteWatchlistItems,
   moveWatchlistItem,
   updateWatchlistOrder,
-} from "@/app/watchlist/actions";
+} from "@/app/dashboard/watchlist/actions";
 import TickerImage from "../stock/TickerImage";
 
 function cloneDeep(object: object) {

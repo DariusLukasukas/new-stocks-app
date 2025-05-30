@@ -21,41 +21,41 @@ interface DockItem {
 const DATA: DockItem[] = [
   {
     label: "Home",
-    href: "/",
+    href: "/dashboard",
     icon: <Home />,
   },
   {
     label: "News",
-    href: "/news",
+    href: "/dashboard/news",
     icon: <Newspaper />,
   },
   {
     label: "Screener",
-    href: "/screener",
+    href: "/dashboard/screener",
     icon: <ChartNoAxesCombined />,
     disabled: true,
   },
   {
     label: "Watchlist",
-    href: "/watchlist",
+    href: "/dashboard/watchlist",
     icon: <BookMarked />,
   },
   {
     label: "Notes",
-    href: "/notes",
+    href: "/dashboard/notes",
     icon: <NotebookText />,
     disabled: true,
   },
   {
     label: "Settings",
-    href: "/settings",
+    href: "/dashboard/settings",
     icon: <Cog />,
   },
 ];
 
 export default function Dock() {
   return (
-    <div className="fixed bottom-3 z-50 w-full">
+    <div className="fixed bottom-3 left-1/2 z-50 mx-auto w-fit -translate-x-1/2">
       <div className="container mx-auto flex items-center justify-center">
         <nav className="animate-dock-slide-up bg-glass-background-primary shadow-s flex items-center gap-4 rounded-full p-2 backdrop-blur-sm transition-transform will-change-transform">
           {DATA.map((item, index) => (

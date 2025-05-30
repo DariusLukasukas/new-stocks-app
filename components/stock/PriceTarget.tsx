@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/card";
 import StockLineChart from "@/components/charts/StockLineChart";
 import { cn } from "@/lib/utils";
-import { getStockChartData } from "@/app/stock/[ticker]/actions";
+import { getStockChartData } from "@/app/dashboard/stock/[ticker]/actions";
 import {
   FinancialData,
   PriceData,

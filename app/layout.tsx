@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Dock from "@/components/dock/Dock";
 import { ThemeProvider } from "@/components/ui/theme-provider";
-import { Autocomplete } from "@/components/search/Autocomplete";
 import { Container } from "@/components/ui/container";
 
 const geistSans = Geist({
@@ -40,8 +38,6 @@ export default function RootLayout({
           <Container variant={"fullMobileConstrainedPadded"}>
             {children}
           </Container>
-          {/* <Dock /> */}
-          <Autocomplete />
         </ThemeProvider>
       </body>
     </html>

@@ -163,7 +163,7 @@ export function Autocomplete() {
           placeholder="Search for a company or ticker..."
           className="text-lg caret-blue-500"
         />
-        <CommandList className="[&::-webkit-scrollbar-track]:bg-glass-background-secondary [&::-webkit-scrollbar-thumb]:bg-glass-background-primary hover:[&::-webkit-scrollbar-thumb]:bg-glass-background-secondary-hover dark:[&::-webkit-scrollbar-thumb]:bg-background-modal dark:hover:[&::-webkit-scrollbar-thumb]:bg-glass-background-secondary-hover overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full md:text-glass-text-secondary">
+        <CommandList className="[&::-webkit-scrollbar-track]:bg-glass-background-secondary [&::-webkit-scrollbar-thumb]:bg-glass-background-primary hover:[&::-webkit-scrollbar-thumb]:bg-glass-background-secondary-hover dark:[&::-webkit-scrollbar-thumb]:bg-background-modal dark:hover:[&::-webkit-scrollbar-thumb]:bg-glass-background-secondary-hover md:text-glass-text-secondary overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-track]:rounded-full">
           {debouncedSearchTerm.length > 0 && results.length === 0 && (
             <CommandEmpty>No results found.</CommandEmpty>
           )}
@@ -173,7 +173,7 @@ export function Autocomplete() {
                 <CommandItem
                   key={item.cik}
                   onSelect={() => {
-                    router.push(`/stock/${item.ticker}`);
+                    router.push(`/dashboard/stock/${item.ticker}`);
                     setSearchTerm("");
                     setOpen(false);
                   }}
