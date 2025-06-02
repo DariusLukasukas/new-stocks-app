@@ -39,12 +39,12 @@ export default function PriceLabel({
   const [dollars, decimals] = formattedPrice.split(".");
 
   return (
-    <div>
-      <div className="text-text-secondary flex items-center text-lg font-semibold">
+    <div className="leading-8">
+      <div className="text-text-primary flex items-center text-xl font-bold md:text-xl">
         {label}
         {icon && <p className="ml-1">{icon}</p>}
       </div>
-      <div className="flex flex-row items-end gap-2 font-mono text-xl leading-tight font-bold tracking-tight tabular-nums md:text-2xl">
+      <div className="font-nunito flex flex-row items-end gap-2 text-2xl font-extrabold tracking-tight md:text-3xl">
         <p className="flex items-baseline">
           {dollars}
           <span className="text-text-secondary">.{decimals}</span>

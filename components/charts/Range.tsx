@@ -39,7 +39,7 @@ export default function Range({
 
   const handleClick = (value: string) => {
     if (value == selected) return;
-    
+
     // immediate UI update
     setSelected(value);
 
@@ -57,7 +57,7 @@ export default function Range({
         layout
         role="tablist"
         aria-label="Select data range"
-        className="bg-background-tertiary flex w-fit flex-row gap-2 rounded-full p-1 text-sm"
+        className="bg-background-tertiary relative flex w-fit flex-row gap-2 rounded-full p-1 text-sm"
       >
         {RANGE_OPTIONS.map(({ value, label }) => {
           const isSelected = value === selected;
@@ -72,8 +72,10 @@ export default function Range({
             >
               <span
                 className={cn(
-                  "z-10 font-semibold whitespace-nowrap",
-                  isSelected ? "text-text-primary" : "text-text-secondary",
+                  "z-10 font-semibold whitespace-nowrap transition-colors duration-300 ease-in",
+                  isSelected
+                    ? "text-text-primary font-bold"
+                    : "text-text-tertiary",
                 )}
               >
                 {label}

@@ -46,7 +46,7 @@ export default function RevenueEarnings({
           Revenue {revChange >= 0 ? "+" : "-"}
           {Math.abs(revChange)}%
         </span>
-        {" | "}
+        <span className="text-text-secondary">{" | "}</span>
         <span className={earnClass}>
           Earnings {earnChange >= 0 ? "+" : "-"}
           {Math.abs(earnChange)}%
@@ -58,8 +58,10 @@ export default function RevenueEarnings({
   return (
     <Card className={className}>
       <CardHeader className="items-center">
-        <CardTitle>Revenue vs Earnings</CardTitle>
-        <CardDescription className="font-medium">{descContent}</CardDescription>
+        <CardTitle className="text-lg">Revenue vs Earnings</CardTitle>
+        <CardDescription className="text-base font-medium">
+          {descContent}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <EarningBarChart data={quarterly} />

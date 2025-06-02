@@ -65,20 +65,28 @@ const CustomReferenceTriangle = ({ cx, cy, payload }: any) => {
 };
 
 const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
-  if (active && payload?.length) {
-    const d = payload[0].payload as QuarterlyEarningsPoint;
-    return (
-      <div className="rounded-md border bg-white/5 p-2 text-sm font-medium shadow-md backdrop-blur-sm">
-        <p className="text-primary">Actual: ${d.actual.toFixed(2)}</p>
-        <p className="text-(--chart-orange)">
+  if (!active || !payload?.length) {
+    return null;
+  }
+
+  // payload[0].payload is the original data-point object (a QuarterlyEarningsPoint or similar),
+  // which may have both `actual` and `estimate`, or only one of them.
+  const d = payload[0].payload as Partial<QuarterlyEarningsPoint>;
+
+  return (
+    <div className="bg-glass-background-primary text-glass-text-primary rounded-xl px-4 py-2 text-sm leading-8 font-semibold shadow-md backdrop-blur-xl">
+      {/* Only show “Estimate” if it’s defined on this point */}
+      {typeof d.estimate === "number" && (
+        <p className="text-[var(--chart-orange)]">
           Estimate: ${d.estimate.toFixed(2)}
         </p>
-      </div>
-    );
-  }
-  return null;
-};
+      )}
 
+      {/* Only show “Actual” if it’s defined on this point */}
+      {typeof d.actual === "number" && <p>Actual: ${d.actual.toFixed(2)}</p>}
+    </div>
+  );
+};
 export default function StockEarningQChart({ chart }: StockEarningQChartProps) {
   const {
     quarterly,

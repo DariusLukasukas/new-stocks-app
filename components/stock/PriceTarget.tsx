@@ -63,10 +63,10 @@ export default async function PriceTarget({
   return (
     <Card className={className}>
       <CardHeader className="items-center">
-        <CardTitle>Price target</CardTitle>
+        <CardTitle className="text-xl">Price target</CardTitle>
         <CardDescription
           className={cn(
-            "font-medium",
+            "text-base font-medium",
             upside > 0 ? "text-green-500" : "text-red-500",
           )}
         >

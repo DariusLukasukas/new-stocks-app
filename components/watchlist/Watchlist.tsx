@@ -84,7 +84,7 @@ const Item = memo(function Item({
   return (
     <div
       ref={ref}
-      className="bg-card flex flex-row items-center justify-between rounded-lg px-2 py-1.5 text-sm"
+      className="flex flex-row items-center justify-between rounded-lg py-1.5 text-sm"
     >
       <div className="flex min-w-28 flex-row items-center gap-2">
         {showEditColumn && (
@@ -92,19 +92,20 @@ const Item = memo(function Item({
             aria-label="Select ticker to delete"
             checked={checked}
             onCheckedChange={() => onToggleCheck && onToggleCheck(column, id)}
+            className="border-bg-quarternary size-5 rounded-md border-2 shadow-none"
           />
         )}
-        <div className="inline-flex size-5 items-center justify-center rounded bg-black p-1">
+        <div className="inline-flex size-6 items-center justify-center rounded-md bg-black p-1">
           <TickerImage ticker={id} />
         </div>
-        <p className="font-semibold">{id}</p>
+        <p className="font-bold">{id}</p>
       </div>
-      <p className="min-w-16 text-right font-medium">
+      <p className="font-nunito min-w-16 text-right font-bold">
         {price != null ? `$${price.toFixed(2)}` : "–"}
       </p>
       <p
         className={cn(
-          "min-w-16 text-center font-medium",
+          "font-nunito min-w-16 text-center font-bold",
           change != null && change >= 0 ? "text-green-600" : "text-red-600",
         )}
       >
@@ -112,7 +113,7 @@ const Item = memo(function Item({
       </p>
       <p
         className={cn(
-          "min-w-20 rounded-md px-2 py-0.5 text-center font-medium",
+          "font-nunito min-w-20 rounded-md px-2 py-0.5 text-center font-bold",
           changePercent != null && changePercent >= 0
             ? "bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300"
             : "bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300",
@@ -151,19 +152,19 @@ const Column = memo(
     return (
       <div
         ref={ref}
-        className="bg-secondary dark:bg-background flex h-auto min-w-3xs flex-col gap-2 rounded-lg p-2"
+        className="bg-background-secondary flex h-auto min-w-xs flex-col gap-2 rounded-3xl p-4"
       >
         <div className="group/card flex min-h-9 flex-row items-center justify-between">
-          <h2 className="font-bold">{title}</h2>
+          <h2 className="text-lg font-bold">{title}</h2>
           {onRemove && (
             <Button
               size={"icon"}
               variant={"custom"}
               onClick={onRemove}
-              className="hidden group-hover/card:inline-flex"
+              className="text-text-secondary pointer-events-none opacity-0 transition-opacity duration-200 ease-in-out group-hover/card:pointer-events-auto group-hover/card:opacity-100 hover:opacity-80"
               aria-label="Delete watchlist column"
             >
-              <X />
+              <X strokeWidth={3} />
             </Button>
           )}
         </div>
@@ -431,15 +432,15 @@ export default function Watchlist({
       <div className="flex w-full flex-col gap-4">
         {/* Watchlist header */}
         {!showAddTicker && (
-          <div className="flex flex-row items-center justify-between px-2">
-            <h1 className="text-lg font-bold">Watchlist</h1>
+          <div className="flex flex-row items-center justify-between">
+            <h1 className="px-4 text-2xl font-bold">Watchlist</h1>
             <div className="flex flex-row gap-2">
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       size={"icon"}
-                      variant={"outline"}
+                      variant={"secondary"}
                       aria-label="Add stocks"
                       tabIndex={0}
                       onClick={() => {
@@ -448,7 +449,7 @@ export default function Watchlist({
                         setShowAddTicker((prev) => !prev);
                       }}
                     >
-                      <Plus />
+                      <Plus strokeWidth="2.5" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -459,7 +460,7 @@ export default function Watchlist({
                   <TooltipTrigger asChild>
                     <Button
                       size={"icon"}
-                      variant={"outline"}
+                      variant={"secondary"}
                       aria-label="Add watchlist"
                       tabIndex={0}
                       onClick={() => {
@@ -469,7 +470,7 @@ export default function Watchlist({
                         setShowAddColumn((prev) => !prev);
                       }}
                     >
-                      <CopyPlus />
+                      <CopyPlus strokeWidth={2.5} />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -480,7 +481,7 @@ export default function Watchlist({
                   <TooltipTrigger asChild>
                     <Button
                       size={"icon"}
-                      variant={"outline"}
+                      variant={"secondary"}
                       aria-label="Edit watchlist"
                       tabIndex={0}
                       onClick={() => {
@@ -495,7 +496,7 @@ export default function Watchlist({
                           "border-none bg-blue-500/20 text-blue-500 hover:bg-blue-500/20 hover:text-blue-500",
                       )}
                     >
-                      <ListX />
+                      <ListX strokeWidth={2.5} />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -509,8 +510,10 @@ export default function Watchlist({
 
         <div className="min-h-9">
           {showEditColumn && numChecked > 0 && (
-            <div className="flex flex-row items-center justify-between px-2">
-              <span className="font-medium">{numChecked} selected</span>
+            <div className="flex flex-row items-center justify-between">
+              <div className="px-4 text-base font-semibold">
+                <p>{numChecked} selected</p>
+              </div>
               <div className="flex flex-row gap-2">
                 <Button
                   variant={"secondary"}
@@ -557,6 +560,7 @@ export default function Watchlist({
                   placeholder="Add watchlist"
                   value={newColumnName}
                   onChange={handleInputChange}
+                  className="bg-background-tertiary dark:bg-background-tertiary placeholder:text-text-tertiary h-8 rounded-lg border-none px-4 text-base font-medium shadow-none md:text-base"
                 />
                 <Button
                   variant={"secondary"}

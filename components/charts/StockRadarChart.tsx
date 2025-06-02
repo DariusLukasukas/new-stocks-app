@@ -30,18 +30,24 @@ export default function StockRadarChart({ trend }: StockRadarChartProps) {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
-        <PolarGrid stroke="var(--border)" />
+        <PolarGrid
+          strokeWidth={2}
+          stroke="var(--unique-background-glass-badge)"
+        />
         <PolarAngleAxis
           dataKey="label"
           tick={({ payload, ...rest }) => {
             const item = chartData.find((d) => d.label === payload.value);
             const display = item ? item.value : "-";
             return (
-              <text {...rest} y={rest.y + 4} className="text-sm font-medium">
-                <tspan fill="var(--color-muted-foreground)">
+              <text {...rest} y={rest.y + 4}>
+                <tspan fill="var(--muted-foreground)" className="font-medium">
                   {payload.value}
                 </tspan>
-                <tspan fill="var(--color-card-foreground)">
+                <tspan
+                  fill="var(--color-primary)"
+                  className="font-nunito font-bold"
+                >
                   {" "}
                   {display}
                 </tspan>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Nunito } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { Container } from "@/components/ui/container";
@@ -12,6 +12,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  variable: "--font-nunito",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -27,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-background-primary text-primary min-h-svh antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${nunito.variable} bg-background-primary text-primary min-h-svh antialiased`}
       >
         <ThemeProvider
           attribute="class"
@@ -35,7 +41,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Container variant={"fullMobileConstrainedPadded"}>
+          <Container
+            variant={"fullMobileConstrainedPadded"}
+            className="lg:px-0"
+          >
             {children}
           </Container>
         </ThemeProvider>

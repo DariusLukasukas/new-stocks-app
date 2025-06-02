@@ -39,6 +39,7 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // If the user is already signed in, and they try to go to /login or /signup, send them to /dashboard.
   if (
     user &&
     (request.nextUrl.pathname === "/login" ||
@@ -49,10 +50,12 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // If there is no user, only allow: "/", "/login", "/signup", or anything under "/auth/*"
   if (
     !user &&
     request.nextUrl.pathname !== "/" &&
     !request.nextUrl.pathname.startsWith("/login") &&
+    !request.nextUrl.pathname.startsWith("/signup") &&
     !request.nextUrl.pathname.startsWith("/auth")
   ) {
     // no user, potentially respond by redirecting the user to the login page

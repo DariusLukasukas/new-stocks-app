@@ -6,8 +6,8 @@ export default function TickerImage({ ticker }: { ticker: string }) {
     <Image
       src={imageUrl}
       alt={`Logo for ${ticker}`}
-      width={24}
-      height={24}
+      width={48}
+      height={48}
       quality={100}
       priority
     />

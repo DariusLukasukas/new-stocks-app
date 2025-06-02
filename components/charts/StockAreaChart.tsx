@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { ChartData } from "@/app/stock/[ticker]/page";
+import { ChartData } from "@/app/dashboard/stock/[ticker]/page";
 import {
   Area,
   XAxis,
@@ -28,38 +28,38 @@ export const RANGE_OPTIONS = [
 /**
  * Custom SVG shape for the pulsing dot.
  */
-const PulsingDot = (props: ReferenceDotProps) => {
-  const { cx, cy } = props;
-  return (
-    <g>
-      <circle cx={cx} cy={cy} r="4" fill="var(--color-primary)" />
-      <circle
-        cx={cx}
-        cy={cy}
-        r="10"
-        fill="none"
-        stroke="var(--color-primary)"
-        strokeWidth="2"
-      >
-        <animate
-          attributeName="r"
-          from="5"
-          to="10"
-          dur="2s"
-          repeatCount="indefinite"
-        />
-        <animate
-          attributeName="opacity"
-          from="1"
-          to="0"
-          dur="2s"
-          begin="0.5s"
-          repeatCount="indefinite"
-        />
-      </circle>
-    </g>
-  );
-};
+interface PulsingDotProps extends ReferenceDotProps {
+  color?: string;
+}
+
+const PulsingDot = ({
+  cx,
+  cy,
+  color = "var(--chart-blue)",
+}: PulsingDotProps) => (
+  <g>
+    {/* inner circle */}
+    <circle cx={cx} cy={cy} r={4} fill={color} />
+    {/* pulsing ring */}
+    <circle cx={cx} cy={cy} r={10} fill="none" stroke={color} strokeWidth={2}>
+      <animate
+        attributeName="r"
+        from="5"
+        to="10"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+      <animate
+        attributeName="opacity"
+        from="1"
+        to="0"
+        dur="2s"
+        begin="0.5s"
+        repeatCount="indefinite"
+      />
+    </circle>
+  </g>
+);
 
 /**
  * Formats a Date for the X-Axis tick labels.
@@ -139,18 +139,18 @@ const CustomTooltip = ({
     const dateLabel = formatTooltipLabel(new Date(label), range);
     const { value: price, color } = payload[0];
     return (
-      <div className="text-primary rounded-md border bg-white/5 p-2 text-sm font-medium shadow-md backdrop-blur-sm">
-        <div>{dateLabel}</div>
-        <div className="mt-1 flex items-center">
-          {/* marker line: */}
-          <span
+      <div className="bg-glass-background-primary text-glass-text-primary rounded-xl px-4 py-2 text-sm leading-8 font-semibold shadow-md backdrop-blur-xl">
+        <div className="flex items-center">
+          <div
             style={{
               backgroundColor: color,
             }}
             className="mr-1 inline-block h-4 w-1 rounded-t-sm rounded-b-sm"
           />
-          <span>Price: {formatPrice(price!)}</span>
-        </div>{" "}
+          <p>Price: </p>
+          <p className="font-nunito ml-1 font-bold">{formatPrice(price!)}</p>
+        </div>
+        <p className="text-glass-text-secondary">{dateLabel}</p>
       </div>
     );
   }
@@ -223,25 +223,21 @@ export default function StockAreaChart({
   const strokeColor = isUp ? "var(--chart-green)" : "var(--chart-red)";
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-2">
       <div
-        style={{ width: "100%", height: 420 }}
+        style={{ width: "100%", height: 416 }}
         className="relative select-none"
       >
         {/* DOTS */}
         <div className="absolute inset-0 h-full w-full bg-[radial-gradient(var(--color-muted-foreground)_0.5px,transparent_0.5px)] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_60%,transparent_100%)] [background-size:17px_17px] dark:opacity-80" />
 
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart
-            data={rawData}
-            margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-            className="font-mono"
-          >
+          <ComposedChart data={rawData} margin={{ top: 5, right: 10 }}>
             {showChartGradient && (
               <defs>
                 <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                  {/* 80% opaque at the very top */}
-                  <stop offset="0%" stopColor={strokeColor} stopOpacity={0.1} />
+                  {/* 100% opaque at the very top */}
+                  <stop offset="0%" stopColor={strokeColor} stopOpacity={1} />
                   {/* fully transparent at the bottom */}
                   <stop offset="100%" stopColor={strokeColor} stopOpacity={0} />
                 </linearGradient>
@@ -258,7 +254,7 @@ export default function StockAreaChart({
                 tickFormatter={(value) =>
                   formatXAxisTick(new Date(value), range)
                 }
-                className="text-muted-foreground text-sm font-medium"
+                className="text-text-tertiary font-nunito text-sm font-bold"
               />
             )}
             <YAxis
@@ -267,7 +263,6 @@ export default function StockAreaChart({
               axisLine={false}
               width={0}
               domain={["dataMin", "dataMax"]}
-              padding={{ bottom: 60 }}
             />
             <YAxis
               hide
@@ -306,8 +301,8 @@ export default function StockAreaChart({
                 yAxisId="price"
                 x={currentDataPoint.date}
                 y={currentDataPoint.close}
-                r={5}
-                shape={<PulsingDot />}
+                r={6}
+                shape={<PulsingDot color={strokeColor} />}
               />
             )}
           </ComposedChart>

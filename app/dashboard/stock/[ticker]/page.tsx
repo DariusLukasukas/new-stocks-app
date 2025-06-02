@@ -88,11 +88,11 @@ export default async function Page({
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 pb-20">
       <div className="flex flex-row items-center justify-between py-2">
         <div className="flex flex-row items-center gap-2">
           <GoBack />
-          <div className="relative inline-flex size-12 items-center justify-center rounded-2xl bg-black p-2 select-none dark:border">
+          <div className="border-border-divider relative inline-flex size-12 items-center justify-center overflow-hidden rounded-xl border-2 p-2 select-none">
             <TickerImage ticker={ticker} />
           </div>
           <div className="flex h-10 flex-col justify-center truncate text-base leading-tight font-semibold tracking-[.009em]">
@@ -117,38 +117,38 @@ export default async function Page({
       </div>
 
       <Card className="bg-background-secondary my-10 rounded-3xl border-none p-6 shadow-none">
-        <CardContent className="divide-y-1 p-0 lg:grid lg:grid-cols-8 lg:divide-none">
+        <CardContent className="grid grid-cols-2 gap-4 divide-y-1 p-0 lg:grid-cols-8 lg:divide-none">
           <KPIs data={stock} />
         </CardContent>
       </Card>
 
-      <Card className="bg-background-secondary rounded-3xl border-none shadow-none">
+      <Card className="bg-background-primary rounded-3xl border-none shadow-none">
         <CardHeader>
-          <CardTitle className="text-xl">Analyst estimates</CardTitle>
+          <CardTitle className="text-2xl">Analyst estimates</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <CardContent className="grid grid-cols-1 gap-5 p-0 lg:grid-cols-2">
           <AnalystEstimates
             data={stock}
-            className="bg-background-primary rounded-3xl border-none shadow-none"
+            className="bg-background-secondary rounded-3xl border-none shadow-none"
           />
           <PriceTarget
             data={stock}
             ticker={ticker}
-            className="bg-background-primary rounded-3xl border-none shadow-none"
+            className="bg-background-secondary rounded-3xl border-none shadow-none"
           />
         </CardContent>
 
         <CardHeader>
-          <CardTitle className="text-xl">Earnings</CardTitle>
+          <CardTitle className="text-2xl">Earnings</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <CardContent className="grid grid-cols-1 gap-5 p-0 lg:grid-cols-2">
           <RevenueEarnings
             data={stock}
-            className="bg-background-primary rounded-3xl border-none shadow-none"
+            className="bg-background-secondary rounded-3xl border-none shadow-none"
           />
           <Earnings
             data={stock}
-            className="bg-background-primary rounded-3xl border-none shadow-none"
+            className="bg-background-secondary rounded-3xl border-none shadow-none"
           />
         </CardContent>
       </Card>

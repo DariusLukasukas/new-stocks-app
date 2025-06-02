@@ -145,7 +145,7 @@
   --purple-80: hsl(275 81% 41%);
   --purple-90: hsl(275 100% 30%);
   --purple-95: hsl(275 100% 24%);
-  
+  --unique-background-glass-badge: hsl(0 0% 45%/56%);
   --glass-text-primary: var(--neutral-0);
   --glass-text-secondary: var(--neutral-40);
   --glass-text-tertiary: var(--neutral-50);
@@ -213,7 +213,7 @@
   --border-warning: var(--yellow-60);
   --border-positive: var(--green-60);
   --unique-border-secondary-hover: var(--neutral-20);
-
+  --unique-background-glass-badge: hsl(0 0% 45%/56%);
   --glass-text-primary: var(--neutral-0);
   --glass-text-secondary: var(--neutral-40);
   --glass-text-tertiary: var(--neutral-50);
@@ -338,6 +338,7 @@
 }
 
 @theme inline {
+  --font-nunito: var(--font-nunito);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-background-secondary: var(--background-secondary);
@@ -374,6 +375,7 @@
   --radius-xl: calc(var(--radius) + 4px);
 
   /* new mappings from .dark and :root */
+  --unique-background-glass-badge: var(--unique-background-glass-badge);
   --color-bg-quarternary: var(--bg-quarternary);
   --color-shadow: var(--shadow);
   --color-shadow-image-inset: var(--shadow-image-inset);
@@ -398,7 +400,7 @@
   /* background tokens */
   --color-background-modal: var(--background-modal);
   --color-background-primary: var(--background-primary);
-  --color-background-secondary-2: var(--background-secondary); /* alternate */
+  --color-background-secondary: var(--background-secondary);
   --color-background-tertiary: var(--background-tertiary);
   --color-background-inverse: var(--background-inverse);
   --color-background-brand: var(--background-brand);
@@ -411,7 +413,7 @@
 
   /* border tokens */
   --color-border-primary: var(--border-primary);
-  --color-border-secondary-2: var(--border-secondary); /* alternate */
+  --color-border-secondary: var(--border-secondary);
   --color-border-divider: var(--border-divider);
   --color-border-inverse: var(--border-inverse);
   --color-border-brand: var(--border-brand);

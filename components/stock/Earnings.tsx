@@ -57,8 +57,8 @@ export default function Earnings({ data, className }: EarningsProps) {
   return (
     <Card className={className}>
       <CardHeader className="items-center">
-        <CardTitle>Earnings per share</CardTitle>
-        <CardDescription className={cn("font-medium", colorClass)}>
+        <CardTitle className="text-lg">Earnings per share</CardTitle>
+        <CardDescription className={cn("text-base font-medium", colorClass)}>
           {epsText}
         </CardDescription>
       </CardHeader>

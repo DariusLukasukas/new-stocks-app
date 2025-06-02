@@ -258,10 +258,10 @@ export default function Hero() {
     <section className="flex flex-col items-center justify-center pt-44">
       <Stack />
       <div className="flex flex-col gap-2 pt-12 text-center leading-8 text-balance">
-        <h2 className="text-6xl font-bold tracking-tight">
+        <h2 className="text-5xl font-bold tracking-tight md:text-6xl">
           Make better investments.
         </h2>
-        <p className="text-text-secondary text-xl">
+        <p className="text-text-secondary text-lg md:text-xl">
           {
             "Acme offers a streamlined view of real-time market data, investment platform that empowers users to make informed decisions and achieve their financial goals."
           }

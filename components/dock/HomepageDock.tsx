@@ -10,11 +10,12 @@ type NavProps = {
 const NAV: NavProps[] = [
   { label: "Pricing", href: "/" },
   { label: "Log in", href: "/login" },
-  {
-    label: "Join for free",
-    href: "/signup",
-    className: "rounded-full bg-primary text-white p-2.5 px-3.5 m-0",
-  },
+  // {
+  //   label: "Join for free",
+  //   href: "/signup",
+  //   className:
+  //     "rounded-full bg-primary text-white dark:text-black p-2.5 px-3.5 m-0 hidden md:block",
+  // },
 ];
 
 export default function HomepageDock() {

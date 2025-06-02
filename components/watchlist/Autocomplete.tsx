@@ -143,15 +143,15 @@ export default function Autocomplete({
   }, [debouncedSearchTerm]);
 
   return (
-    <Command shouldFilter={false} className="md:max-w-md">
+    <Command shouldFilter={false}>
       <div className="flex w-full flex-row gap-2">
         <CommandInput
           value={searchTerm}
           onValueChange={(val) => setSearchTerm(val)}
           showSearchIcon={false}
           placeholder="Search tickers..."
-          className="text-lg caret-blue-500"
-          wrapperClassName="border-none px-2"
+          className="md:text-text-primary h-9 text-lg font-medium caret-blue-500"
+          wrapperClassName="border-none px-3 h-9"
         />
         <Button
           variant={"custom"}
@@ -159,7 +159,7 @@ export default function Autocomplete({
             setSearchTerm("");
             showAddTicker();
           }}
-          className="text-blue-500 hover:text-blue-400"
+          className="h-9 text-base text-blue-500 hover:text-blue-400"
         >
           Done
         </Button>
@@ -169,7 +169,10 @@ export default function Autocomplete({
           <CommandEmpty>No results found.</CommandEmpty>
         )}
         {results.length > 0 && (
-          <CommandGroup heading="Suggestions">
+          <CommandGroup
+            heading="Suggestions"
+            className="text-text-secondary tracking-wide"
+          >
             {results.map((item) => {
               const isAlreadyAdded = existingTickers
                 .map((ticker) => ticker.toLowerCase())
@@ -181,6 +184,7 @@ export default function Autocomplete({
                   onSelect={() => {
                     onSelect(item);
                   }}
+                  className="md:text-text-primary md:hover:text-text-primary md:data-[selected=true]:text-text-text-primary md:data-[selected=true]:bg-background-secondary py-2 text-base"
                 >
                   <span className="w-16 min-w-fit font-semibold">
                     {item.ticker}

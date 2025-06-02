@@ -42,7 +42,6 @@ export default function StockLineChart({
   if (!chartData || !chartData.quotes || chartData.quotes.length === 0) {
     return <div>No chart data available</div>;
   }
-
   const quotes = chartData.quotes;
 
   const realData: DataPoint[] = quotes.map((quote) => {
@@ -82,7 +81,6 @@ export default function StockLineChart({
     const forecastLowVal = lastPrice + (targetLowPrice - lastPrice) * easedFrac;
     const forecastMedianVal =
       lastPrice + (targetMedianPrice - lastPrice) * easedFrac;
-
     const forecastTime = lastQuoteDate.getTime() + i * intervalMs;
     const dt = new Date(forecastTime);
 
@@ -98,7 +96,6 @@ export default function StockLineChart({
 
   // Combine actual and forecast data (they should already be in time order).
   const fullData: DataPoint[] = [...realData, ...forecastPoints];
-
   // Use the very last forecast point for the reference dots.
   const lastForecastPoint = forecastPoints[forecastPoints.length - 1];
 
@@ -116,10 +113,11 @@ export default function StockLineChart({
             padding={{ left: 100 }}
           />
           <YAxis hide domain={["dataMin - 20", "dataMax + 20"]} />
-
+          {/* Step 1: Define gradients for each forecast line you want to style */}
           <defs>
+            {/* ForecastLow: left white → right red */}
             <linearGradient
-              id="currentPriceGradient"
+              id="forecastLowGradient"
               x1="0"
               y1="0"
               x2="1"
@@ -127,17 +125,54 @@ export default function StockLineChart({
             >
               <stop
                 offset="0%"
-                stopColor="var(--card-foreground)"
+                stopColor="var(--color-primary)"
                 stopOpacity={1}
               />
               <stop
                 offset="100%"
-                stopColor="var(--card-foreground)"
-                stopOpacity={0}
+                stopColor="var(--chart-red)"
+                stopOpacity={1}
+              />
+            </linearGradient>
+            {/* ForecastHigh: left white → right green */}
+            <linearGradient
+              id="forecastHighGradient"
+              x1="0"
+              y1="0"
+              x2="1"
+              y2="0"
+            >
+              <stop
+                offset="0%"
+                stopColor="var(--color-primary)"
+                stopOpacity={1}
+              />
+              <stop
+                offset="100%"
+                stopColor="var(--chart-green)"
+                stopOpacity={1}
+              />
+            </linearGradient>
+            {/* ForecastMedian: left white → right orange */}
+            <linearGradient
+              id="forecastMedianGradient"
+              x1="0"
+              y1="0"
+              x2="1"
+              y2="0"
+            >
+              <stop
+                offset="0%"
+                stopColor="var(--color-primary)"
+                stopOpacity={1}
+              />
+              <stop
+                offset="100%"
+                stopColor="var(--chart-orange)"
+                stopOpacity={1}
               />
             </linearGradient>
           </defs>
-
           {/* Target High Reference */}
           <ReferenceDot
             x={lastForecastPoint.time}
@@ -149,39 +184,39 @@ export default function StockLineChart({
             xAxisId={0}
             yAxisId={0}
             shape={({ cx, cy }) => (
-              <circle cx={cx} cy={cy} r={6} fill="var(--chart-green)" />
+              <circle cx={cx} cy={cy} r={1} fill="var(--chart-green)" />
             )}
             label={{
               value: `$${targetHighPrice}`,
+              textAnchor: "start",
               position: "right",
-              fill: "var(--muted-foreground)",
-              fontSize: 14,
-              fontWeight: "bold",
+              fill: "var(--chart-green)",
+              fontSize: 16,
+              fontWeight: "600",
             }}
           />
-
           {/* Target Low Reference */}
           <ReferenceDot
             x={lastForecastPoint.time}
             y={lastForecastPoint.forecastLow as number}
             r={6}
-            fill="var(--destructive)"
+            fill="var(--chart-red)"
             stroke="none"
             ifOverflow="extendDomain"
             xAxisId={0}
             yAxisId={0}
             shape={({ cx, cy }) => (
-              <circle cx={cx} cy={cy} r={6} fill="var(--chart-red)" />
+              <circle cx={cx} cy={cy} r={1} fill="var(--chart-red)" />
             )}
             label={{
               value: `$${targetLowPrice}`,
+              textAnchor: "start",
               position: "right",
-              fill: "var(--muted-foreground)",
-              fontSize: 14,
-              fontWeight: "bold",
+              fill: "var(--chart-red)",
+              fontSize: 16,
+              fontWeight: "600",
             }}
           />
-
           {/* Target Median Reference */}
           <ReferenceDot
             x={lastForecastPoint.time}
@@ -193,28 +228,31 @@ export default function StockLineChart({
             xAxisId={0}
             yAxisId={0}
             shape={({ cx, cy }) => (
-              <circle cx={cx} cy={cy} r={6} fill="var(--chart-orange)" />
+              <circle cx={cx} cy={cy} r={1} fill="var(--chart-orange)" />
             )}
             label={{
               value: `$${targetMedianPrice}`,
+              textAnchor: "start",
               position: "right",
-              fill: "var(--muted-foreground)",
-              fontSize: 14,
-              fontWeight: "bold",
+              fill: "var(--chart-orange)",
+              fontSize: 16,
+              fontWeight: "600",
             }}
           />
-
           {/* Horizontal reference line for current price */}
           <ReferenceLine
             y={lastPrice}
-            stroke="var(--border)"
+            stroke="var(--unique-background-glass-badge)"
+            strokeWidth={2}
+            strokeDasharray="4 4"
             ifOverflow="extendDomain"
             label={{
               value: `$${lastPrice.toFixed(2)}`,
+              textAnchor: "start",
               position: "right",
-              fill: "var(--card-foreground)",
-              fontSize: 14,
-              fontWeight: "bold",
+              fill: "var(--color-primary)",
+              fontSize: 16,
+              fontWeight: "600",
             }}
           />
           {/* Second ReferenceLine just for the left label */}
@@ -223,81 +261,66 @@ export default function StockLineChart({
             stroke="none"
             ifOverflow="extendDomain"
             label={({ viewBox }) => {
-              const offsetX = viewBox.x + 10;
-              const offsetY = viewBox.y - 5;
               return (
                 <text
-                  x={offsetX}
-                  y={offsetY}
+                  y={viewBox.y - 5}
                   fill="var(--card-foreground)"
-                  fontSize={14}
-                  fontWeight="bold"
+                  fontSize={16}
+                  fontWeight="600"
                 >
                   Current price
                 </text>
               );
             }}
           />
-
           {/* High Label */}
           <ReferenceLine
             y={targetHighPrice}
             stroke="none"
             ifOverflow="extendDomain"
             label={({ viewBox }) => {
-              const offsetX = viewBox.x + 10;
-              const offsetY = viewBox.y;
               return (
                 <text
-                  x={offsetX}
-                  y={offsetY}
+                  y={viewBox.y}
                   fill="var(--chart-green)"
-                  fontSize={14}
-                  fontWeight="bold"
+                  fontSize={16}
+                  fontWeight="600"
                 >
                   High
                 </text>
               );
             }}
           />
-
           {/* Low Label */}
           <ReferenceLine
             y={targetLowPrice}
             stroke="none"
             ifOverflow="extendDomain"
             label={({ viewBox }) => {
-              const offsetX = viewBox.x + 10;
-              const offsetY = viewBox.y;
               return (
                 <text
-                  x={offsetX}
-                  y={offsetY}
+                  y={viewBox.y}
                   fill="var(--chart-red)"
-                  fontSize={14}
-                  fontWeight="bold"
+                  fontSize={16}
+                  fontWeight="600"
                 >
                   Low
                 </text>
               );
             }}
           />
-
           {/* Median Label */}
           <ReferenceLine
             y={targetMedianPrice}
             stroke="none"
             ifOverflow="extendDomain"
             label={({ viewBox }) => {
-              const offsetX = viewBox.x + 10;
-              const offsetY = viewBox.y;
               return (
                 <text
-                  x={offsetX}
-                  y={offsetY}
+                  y={viewBox.y}
                   fill="var(--chart-orange)"
-                  fontSize={14}
-                  fontWeight="bold"
+                  fontSize={16}
+                  fontWeight="600"
                 >
                   Median
                 </text>
@@ -305,42 +328,36 @@ export default function StockLineChart({
             }}
           />
 
-          {/* Forecast Low line */}
+          {/* Forecast Low line with gradient stroke */}
           <Line
             type="monotone"
             dataKey="forecastLow"
-            stroke="var(--chart-red)"
-            strokeWidth={1.5}
-            strokeDasharray="5 5"
+            stroke="url(#forecastLowGradient)"
+            strokeWidth={2}
             dot={false}
           />
-
-          {/* Forecast High line */}
+          {/* Forecast High line with gradient stroke */}
           <Line
             type="monotone"
             dataKey="forecastHigh"
-            stroke="var(--chart-green)"
-            strokeWidth={1.5}
-            strokeDasharray="5 5"
+            stroke="url(#forecastHighGradient)"
+            strokeWidth={2}
             dot={false}
           />
-
-          {/* Forecast Median line */}
+          {/* Forecast Median line with gradient stroke */}
           <Line
             type="monotone"
             dataKey="forecastMedian"
-            stroke="var(--chart-orange)"
-            strokeWidth={1.5}
-            strokeDasharray="5 5"
+            stroke="url(#forecastMedianGradient)"
+            strokeWidth={2}
             dot={false}
           />
-
-          {/* Actual price line */}
+          {/* Actual price line (no gradient; stays solid) */}
           <Line
             type="monotone"
             dataKey="price"
             stroke="var(--color-primary)"
-            strokeWidth={1.5}
+            strokeWidth={2}
             dot={false}
           />
         </LineChart>

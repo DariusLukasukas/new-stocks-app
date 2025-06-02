@@ -72,10 +72,8 @@ const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
     const point = payload[0].payload as QuarterlyDataPoint;
     return (
-      <div className="bg-background/40 rounded-md border p-2 text-sm font-medium shadow-md backdrop-blur-sm">
-        <p className="text-primary">
-          Revenue: {formatMarketCap(point.revenue)}
-        </p>
+      <div className="bg-glass-background-primary text-glass-text-primary rounded-xl px-4 py-2 text-sm leading-8 font-semibold shadow-md backdrop-blur-xl">
+        <p>Revenue: {formatMarketCap(point.revenue)}</p>
         <p className="text-(--chart-orange)">
           Earnings: {formatMarketCap(point.earnings)}
         </p>

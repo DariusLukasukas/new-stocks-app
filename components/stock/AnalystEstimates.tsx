@@ -42,10 +42,10 @@ export default function AnalystEstimates({
   return (
     <Card className={className}>
       <CardHeader className="items-center">
-        <CardTitle>Analyst ratings</CardTitle>
+        <CardTitle className="text-xl">Analyst ratings</CardTitle>
         <CardDescription
           className={cn(
-            "font-medium",
+            "text-base font-medium",
             verdict === "Optimistic" && "text-green-500",
             verdict === "Pessimistic" && "text-red-500",
           )}

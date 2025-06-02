@@ -43,7 +43,7 @@ export default async function Page() {
     <div className="flex flex-col gap-8">
       <div className="py-4">
         <h2 className="text-xl font-bold">{"What's happening"}</h2>
-        <p className="text-muted-foreground text-sm font-medium">
+        <p className="text-text-secondary font-medium">
           {"We've gathered the latest market news for you."}
         </p>
       </div>

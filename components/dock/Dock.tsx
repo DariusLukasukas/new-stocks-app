@@ -22,34 +22,34 @@ const DATA: DockItem[] = [
   {
     label: "Home",
     href: "/dashboard",
-    icon: <Home />,
+    icon: <Home size={24} absoluteStrokeWidth={true} />,
   },
   {
     label: "News",
     href: "/dashboard/news",
-    icon: <Newspaper />,
+    icon: <Newspaper size={24} absoluteStrokeWidth={true} />,
   },
   {
     label: "Screener",
     href: "/dashboard/screener",
-    icon: <ChartNoAxesCombined />,
+    icon: <ChartNoAxesCombined size={24} absoluteStrokeWidth={true} />,
     disabled: true,
   },
   {
     label: "Watchlist",
     href: "/dashboard/watchlist",
-    icon: <BookMarked />,
+    icon: <BookMarked size={24} absoluteStrokeWidth={true} />,
   },
   {
     label: "Notes",
     href: "/dashboard/notes",
-    icon: <NotebookText />,
+    icon: <NotebookText size={24} absoluteStrokeWidth={true} />,
     disabled: true,
   },
   {
     label: "Settings",
     href: "/dashboard/settings",
-    icon: <Cog />,
+    icon: <Cog size={24} absoluteStrokeWidth={true} />,
   },
 ];
 
@@ -63,7 +63,7 @@ export default function Dock() {
               key={index}
               disabled={item.disabled}
               tabIndex={item.disabled ? -1 : 0}
-              className="bg-glass-background-secondary text-glass-text-secondary hover:text-glass-text-primary ring-ring/10 dark:ring-ring/20 dark:outline-ring/40 outline-ring/50 hover:bg-glass-background-secondary-hover flex size-11 cursor-pointer items-center justify-center rounded-full transition-colors ease-out focus-visible:ring-4 focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 aria-invalid:focus-visible:ring-0"
+              className="bg-glass-background-secondary text-glass-text-secondary hover:text-glass-text-primary ring-ring/10 dark:ring-ring/20 dark:outline-ring/40 outline-ring/50 hover:bg-glass-background-secondary-hover flex size-11 cursor-pointer items-center justify-center rounded-full transition-colors ease-in-out focus-visible:ring-4 focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 aria-invalid:focus-visible:ring-0"
             >
               <Link
                 href={item.href}

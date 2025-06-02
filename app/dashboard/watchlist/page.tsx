@@ -23,7 +23,7 @@ export default async function page() {
   const stockData = await getStockData(allTickers);
 
   return (
-    <div className="mx-auto w-full max-w-lg">
+    <div className="mx-auto w-full max-w-lg py-2">
       <Watchlist
         initialData={initialData}
         initialColumns={sortedColumns}
