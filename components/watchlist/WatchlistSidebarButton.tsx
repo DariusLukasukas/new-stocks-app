@@ -18,19 +18,19 @@ export default function WatchlistSidebarButton({
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <div className="fixed top-3 right-3">
+        <div className="fixed top-2 right-3">
           <Button
             size={"icon"}
-            variant={"ghost"}
+            variant={"secondary"}
             aria-label="Open watchlist in sidebar"
           >
-            <PanelRightOpen />
+            <PanelRightOpen strokeWidth={2.5} />
           </Button>
         </div>
       </SheetTrigger>
       <SheetContent
         side="right"
-        className="w-full max-w-md px-6 py-2"
+        className="bg-background-primary w-full max-w-md border-none px-6 py-2"
         onOpenAutoFocus={(event) => event.preventDefault()}
       >
         <SheetTitle className="sr-only">Watchlist</SheetTitle>
