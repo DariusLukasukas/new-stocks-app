@@ -43,7 +43,7 @@ export default function RootLayout({
         >
           <Container
             variant={"fullMobileConstrainedPadded"}
-            className="lg:px-0"
+            className="lg:px-1"
           >
             {children}
           </Container>

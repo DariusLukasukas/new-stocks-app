@@ -10,12 +10,6 @@ type NavProps = {
 const NAV: NavProps[] = [
   { label: "Pricing", href: "/" },
   { label: "Log in", href: "/login" },
-  // {
-  //   label: "Join for free",
-  //   href: "/signup",
-  //   className:
-  //     "rounded-full bg-primary text-white dark:text-black p-2.5 px-3.5 m-0 hidden md:block",
-  // },
 ];
 
 export default function HomepageDock() {
@@ -24,7 +18,7 @@ export default function HomepageDock() {
       <nav className="bg-background-secondary/80 absolute top-4 left-1/2 h-15 w-full max-w-xl -translate-x-1/2 rounded-full p-2 backdrop-blur-xl">
         <div className="flex h-full flex-row items-center justify-between">
           <div className="flex grow items-center px-5">
-            <div className="text-xl font-extrabold">Acme</div>
+            <div className="text-xl font-extrabold">Onyx</div>
           </div>
 
           {NAV.map(({ label, href, className }, index) => (

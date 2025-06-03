@@ -11,19 +11,30 @@ import Earnings from "@/components/stock/Earnings";
 import RevenueEarnings from "@/components/stock/RevenueEarnings";
 import { getStockChartData, getStockData } from "./actions";
 import WatchlistSidebar from "@/components/watchlist/WatchlistSidebar";
+import { Metadata, ResolvingMetadata } from "next";
 
 export const revalidate = 60; // revalidate every 60 seconds
 
 export type ChartData = Awaited<ReturnType<typeof getStockChartData>>;
 export type DEFAULT_INTERVALS = "1m" | "15m" | "30m" | "60m" | "1d";
 
-export default async function Page({
-  params,
-  searchParams,
-}: {
+type Props = {
   params: Promise<{ ticker: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
+};
+
+export async function generateMetadata(
+  { params, searchParams }: Props,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
+  const { ticker } = await params;
+
+  return {
+    title: ticker,
+  };
+}
+
+export default async function Page({ params, searchParams }: Props) {
   const { ticker } = await params;
   const { range = "1w" } = await searchParams;
   const chartData = await getStockChartData(ticker, String(range));

@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, Variants } from "motion/react";
+import { motion, Variants } from "motion/react";
+import { Button } from "../ui/button";
+import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 const TICKERS = [
   {
@@ -165,10 +168,11 @@ const TICKERS = [
 
 const CARD_HEIGHT = 80;
 const GAP = 10;
+const N = TICKERS.length;
 
 const stackVariants: Variants = {
   closed: { scale: 1, y: 0, height: CARD_HEIGHT + GAP },
-  open: { scale: 0.9, y: 10, height: 5 * CARD_HEIGHT + 5 * GAP },
+  open: { scale: 0.9, y: 10, height: N * (CARD_HEIGHT + GAP) },
 };
 
 const closedMotion = (i: number) => ({
@@ -191,6 +195,8 @@ function Stack() {
   const [items, setItems] = useState(TICKERS);
   const rotateRef = useRef<number | null>(null);
 
+  const [isAnimating, setIsAnimating] = useState(false);
+
   // the rotation logic extracted for reuse
   const rotateOnce = () => {
     setItems((prev) => {
@@ -201,10 +207,12 @@ function Stack() {
   };
 
   useEffect(() => {
+    setIsAnimating(true);
+
     if (!open) {
       rotateOnce();
       // returns a number in the browser
-      rotateRef.current = window.setInterval(rotateOnce, 4000);
+      rotateRef.current = window.setInterval(rotateOnce, 3000);
     } else {
       // clear and reset to null
       if (rotateRef.current !== null) {
@@ -220,36 +228,40 @@ function Stack() {
   }, [open]);
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial="closed"
-        animate={open ? "open" : "closed"}
-        variants={stackVariants}
-        className="relative flex w-xs flex-col"
-      >
-        {items.map(({ label, value, icon }, i) => (
-          <motion.div
-            key={label}
-            custom={i}
-            initial={closedMotion(i)}
-            onClick={() => setOpen(!open)}
-            animate={open ? openMotion(i) : closedMotion(i)}
-            transition={{ type: "spring", stiffness: 300, damping: 40 }}
-            style={{
-              pointerEvents: i === 0 ? "auto" : "none",
-              cursor: i === 0 ? "pointer" : "default",
-            }}
-            className="bg-background-secondary absolute top-0 flex w-xs flex-row gap-2 overflow-hidden rounded-3xl will-change-transform backface-hidden"
-          >
-            <div className="size-20 overflow-hidden rounded-3xl">{icon}</div>
-            <div className="flex flex-col justify-center">
-              <p className="font-bold">{label}</p>
-              <p className="text-text-secondary font-semibold">{value}</p>
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      initial="closed"
+      animate={open ? "open" : "closed"}
+      onAnimationComplete={() => {
+        setIsAnimating(false);
+      }}
+      variants={stackVariants}
+      className="relative flex w-xs flex-col"
+    >
+      {items.map(({ label, value, icon }, i) => (
+        <motion.div
+          key={label}
+          custom={i}
+          initial={closedMotion(i)}
+          onClick={() => {
+            setOpen(!open);
+          }}
+          animate={open ? openMotion(i) : closedMotion(i)}
+          transition={{ type: "spring", stiffness: 300, damping: 40 }}
+          style={{
+            willChange: isAnimating ? "transform" : "auto",
+            pointerEvents: i === 0 ? "auto" : "none",
+            cursor: i === 0 ? "pointer" : "default",
+          }}
+          className="bg-background-secondary absolute top-0 flex w-xs flex-row gap-2 overflow-hidden rounded-3xl backface-hidden"
+        >
+          <div className="size-20 overflow-hidden rounded-3xl">{icon}</div>
+          <div className="flex flex-col justify-center">
+            <p className="font-bold">{label}</p>
+            <p className="text-text-secondary font-semibold">{value}</p>
+          </div>
+        </motion.div>
+      ))}
+    </motion.div>
   );
 }
 
@@ -263,9 +275,30 @@ export default function Hero() {
         </h2>
         <p className="text-text-secondary text-lg md:text-xl">
           {
-            "Acme offers a streamlined view of real-time market data, investment platform that empowers users to make informed decisions and achieve their financial goals."
+            "Onyx offers a streamlined view of real-time market data, investment platform that empowers users to make informed decisions and achieve their financial goals."
           }
         </p>
+      </div>
+
+      <div className="mt-8 flex flex-row gap-4">
+        <Button
+          asChild
+          variant={"default"}
+          size={"lg"}
+          className="rounded-full px-3 text-base font-semibold"
+        >
+          <Link href="/signup">Join for free</Link>
+        </Button>
+        <Button
+          variant={"outline"}
+          size={"lg"}
+          className="rounded-full px-3 text-base font-semibold"
+        >
+          See our plans
+          <span className="bg-background-tertiary flex size-6 items-center justify-center rounded-full">
+            <ArrowRight className="size-4" strokeWidth={3} />
+          </span>
+        </Button>
       </div>
     </section>
   );

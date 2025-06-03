@@ -10,7 +10,8 @@ interface PriceSectionProps {
 }
 
 function formatPercentage(value: number): string {
-  return `${value.toFixed(2)}%`;
+  // Multiply by 100, then round to two decimals
+  return `${(value * 100).toFixed(2)}%`;
 }
 
 function formatUSD(value: number): string {
