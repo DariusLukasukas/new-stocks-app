@@ -20,7 +20,6 @@ export default function HomepageDock() {
           <div className="flex grow items-center px-5">
             <div className="text-xl font-extrabold">Onyx</div>
           </div>
-
           {NAV.map(({ label, href, className }, index) => (
             <Link
               key={index}

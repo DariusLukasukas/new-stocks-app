@@ -27,15 +27,16 @@ export default function ThemeToggleDynamic() {
   };
 
   const ThemeIcon = currentTheme === "dark" ? Sun : Moon;
-  //
   return (
     <button
       onClick={toggleTheme}
       className={cn(
-        "bg-glass-background-secondary text-glass-text-secondary hover:text-glass-text-primary ring-ring/10 dark:ring-ring/20 dark:outline-ring/40 outline-ring/50 hover:bg-glass-background-secondary-hover flex size-11 cursor-pointer items-center justify-center rounded-full transition-all ease-out focus-visible:ring-4 focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 aria-invalid:focus-visible:ring-0",
+        "text-text-primary flex size-11 cursor-pointer items-center justify-center rounded-full transition ease-in-out hover:scale-95 focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50",
         animation && "animate-theme-spin",
       )}
       title="Toggle Theme"
+      tabIndex={0}
+      aria-label="Toggle Theme"
     >
       {mounted ? <ThemeIcon /> : <div className="block size-10 rounded-full" />}
     </button>

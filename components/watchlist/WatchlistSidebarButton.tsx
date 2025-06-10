@@ -18,7 +18,7 @@ export default function WatchlistSidebarButton({
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <div className="fixed top-2 right-3">
+        <div className="fixed top-2 right-4">
           <Button
             size={"icon"}
             variant={"secondary"}

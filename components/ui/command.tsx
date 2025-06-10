@@ -44,7 +44,7 @@ function CommandDialog({
         <DialogTitle>{title}</DialogTitle>
         <DialogDescription>{description}</DialogDescription>
       </DialogHeader>
-      <DialogContent className="bg-background-modal md:bg-glass-background-primary overflow-hidden rounded-3xl border-none backdrop-blur-md">
+      <DialogContent className="bg-background-modal md:bg-glass-background-primary overflow-hidden rounded-3xl border-none inset-shadow-sm inset-shadow-white/50 backdrop-blur-lg md:backdrop-brightness-110 md:backdrop-saturate-200">
         <Command className="[&_[cmdk-group-heading]]:text-muted-foreground md:border-glass-background-primary rounded-none **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
           {children}
         </Command>

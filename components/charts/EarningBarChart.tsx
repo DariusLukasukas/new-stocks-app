@@ -147,7 +147,7 @@ export default function EarningBarChart({ data }: EarningBarChartProps) {
 
           <Bar
             dataKey="revenue"
-            fill="var(--primary)"
+            fill="var(--chart-blue)"
             shape={(props) => <CustomRevenueBar {...props} />}
           />
           <Bar

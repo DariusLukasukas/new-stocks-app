@@ -41,8 +41,6 @@ export default async function Page({ params, searchParams }: Props) {
   const stockData = await getStockData(ticker);
   const [stock, chart] = await Promise.all([stockData, chartData]);
 
-  console.log(stock);
-
   const {
     marketState,
     preMarketPrice,

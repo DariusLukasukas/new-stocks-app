@@ -152,7 +152,7 @@ const Column = memo(
     return (
       <div
         ref={ref}
-        className="bg-background-secondary flex h-auto min-w-xs flex-col gap-2 rounded-3xl p-4"
+        className="bg-background-secondary flex h-auto min-w-xs flex-col gap-2 rounded-3xl p-5"
       >
         <div className="group/card flex min-h-9 flex-row items-center justify-between">
           <h2 className="text-lg font-bold">{title}</h2>
